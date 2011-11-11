@@ -1,5 +1,5 @@
 #encoding:utf-8
-#       searcher.py
+#       video/__init__.py
 #       
 #       Copyright 2011 nicolas <nicolas@jombi.fr>
 #       
@@ -17,16 +17,6 @@
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
+from searcher import Searcher
 
-class Searcher:
-    """ Interface to searcher objects 
-    
-    A searcher object must have a search(term, quality) function
-    that return a list of results dict
-    """
-    
-    def __init__(self):
-        pass
-    
-    def search(self, term, quality=None):
-        pass
+__all__=['Searcher']

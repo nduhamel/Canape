@@ -18,6 +18,8 @@
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
 
+from canape.utils import PluginMount
+
 class TorrentSearcher:
     """ Base object for torrent search web site API
     
@@ -32,6 +34,7 @@ class TorrentSearcher:
     and an optional torrent_score key (int between 0 and 10) calculated
     with the web site specific data (eg: user type, note)
     """
-
+    __metaclass__ = PluginMount
+    
     def search(self, term, quality=None):
         raise NotImplementedError()

@@ -30,9 +30,7 @@ import pytpb
 import tvrage.api
 
 import quality
-
-import tpb
-
+import video
 # Pourra être utiliser pour verifier le nom du fichier et non du torrent ;-)
 #~ import bencode
 
@@ -89,5 +87,5 @@ if __name__ == '__main__':
         #~ torrents = tpb.search(term)[:5]
         #~ for t in torrents:
             #~ print t['name'] + ' / '+ str(t['size_of'])+'   ' + str(qualities.get_quality(t['name']))
-    tpb = tpb.ThePirateBay()
-    print tpb.search('The walking dead S02E03','720p')[:2]
+    searcher = video.searcher.Searcher()
+    print searcher.search('the walking dead')[0]

@@ -20,7 +20,7 @@
 
 import pytpb
 
-import torrent
+from canape.video import torrent
 
 class ThePirateBay(torrent.TorrentSearcher):
     """ Adaptater for pytpb the python API for The Pirate Bay"""
@@ -36,7 +36,9 @@ class ThePirateBay(torrent.TorrentSearcher):
     
     def search(self, term, quality=None):
         
-        term = term + ' ' + quality
+        if quality:
+            term = term + ' ' + quality
+        
         cat = self.cat.get(quality, None)
         results = []
         
