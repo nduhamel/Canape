@@ -25,6 +25,14 @@ class TvShowSubtitle:
     
     A TvShowSubtitle object must have a search(tvshow, snum, enum) 
     function that return a list of subtitle dicts with this key:
+    * name (str)
+    * uploaded_date (datetime)
+    * download_url (str)
+    And this optional keys:
+    * downloaded_count (int)
+    * score (int) between 0 and 10
+    * rip (str)
+    * release (str)
 
     """
     __metaclass__ = PluginMount

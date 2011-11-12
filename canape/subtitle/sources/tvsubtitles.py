@@ -17,10 +17,22 @@
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
+import logging
 
 import tvsubtitles_api
 
 from canape.subtitle.tvshow import TvShowSubtitle
 
+logger = logging.getLogger(__name__)
+
 class TvSubtitles(TvShowSubtitle):
-    pass
+    
+    def __init__(self):
+        self.tvsubtitles = tvsubtitles_api.TvSubtitles()
+        
+        #Mute tvsubtitles_api logger
+        tvsubtitles_api_logger = logging.getLogger("tvsubtitles_api")
+        tvsubtitles_api_logger.setLevel(logging.ERROR)
+    
+    def search(self, tvshow, snum, enum, language):
+        return self.tvsubtitles[tvshow][snum][enum]['languages'][language]

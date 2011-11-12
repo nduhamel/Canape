@@ -34,16 +34,15 @@ class Searcher:
         """ Load all search class"""
         path = os.path.dirname(__file__) + '/sources'
         self.sources_package = self._load_sources(path)
+        self.tvshow_sources = [s() for s in TvShowSubtitle.plugins]
 
-    def tvshow_search(self, tvshow, snum, enum):
-        """ Return a list of found subtitles
-        args:
-        * tvshow (str) name
-        * snum (int) season number
-        * enum (int) episode number
-        """
-        pass
-            
+    def tvshow_search(self, tvshow, snum, enum, language):
+        """ Return a list of found subtitle dicts """
+        results = []
+        for source in self.tvshow_sources:
+            results.extend(source.search(tvshow, snum, enum, language))
+        return results
+    
     def _load_sources(self, path):
         loaded = []
         for module_loader, name, ispkg in pkgutil.walk_packages(path=[path,]):

@@ -41,7 +41,7 @@ class Searcher:
     def search(self, term, quality=None):
         results = []
         for source in self.torrent_sources:
-            results.extend(source.search(term, quality=None))
+            results.extend(source.search(term, quality))
         return results
             
     def _load_sources(self, path):

@@ -22,12 +22,13 @@ Try to watch for new episodes and download them
 dep:
  python-tvrage
  pytpb              https://github.com/nduhamel/pytpb
+ tvsubtitles_api    https://github.com/nduhamel/tvsubtitles_api
+ 
  //bencode            http://pypi.python.org/pypi/bencode/  for .torrent decode
 """
 import datetime
 import logging
 
-import pytpb
 import tvrage.api
 
 import quality
@@ -76,3 +77,6 @@ if __name__ == '__main__':
     logging.basicConfig(level = logging.DEBUG)
     tvsearcher = video.searcher.Searcher()
     subsearcher = subtitle.searcher.Searcher()
+    
+    for r in subsearcher.tvshow_search('the walking dead', 2, 3, 'fr'):
+        print r
