@@ -20,6 +20,7 @@
 import logging
 
 import tvsubtitles_api
+from tvsubtitles_api.tvsubtitles_exceptions import tvsubtitles_languagenotfound
 
 from canape.subtitle.tvshow import TvShowSubtitle
 
@@ -35,4 +36,8 @@ class TvSubtitles(TvShowSubtitle):
         tvsubtitles_api_logger.setLevel(logging.ERROR)
     
     def search(self, tvshow, snum, enum, language):
-        return self.tvsubtitles[tvshow][snum][enum]['languages'][language]
+        try:
+            return self.tvsubtitles[tvshow][snum][enum]['languages'][language]
+        except tvsubtitles_languagenotfound as  strerror:
+            logger.info(strerror)
+            return []
