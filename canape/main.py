@@ -25,14 +25,16 @@ dep:
  //bencode            http://pypi.python.org/pypi/bencode/  for .torrent decode
 """
 import datetime
+import logging
 
 import pytpb
 import tvrage.api
 
 import quality
 import video
-# Pourra être utiliser pour verifier le nom du fichier et non du torrent ;-)
-#~ import bencode
+import subtitle
+
+logger = logging.getLogger(__name__)
 
 def search_for_new_episodes(seriename, season, lastviewed):
     """ Return list of next episodes, episodes are dict:
@@ -71,21 +73,6 @@ def search_term(ep, quality=None):
     return search_term
 
 if __name__ == '__main__':
-    # Test var
-    #~ tpb = pytpb.ThePirateBay()
-    #~ qualities = quality.Qualities()
-    #~ 
-    #~ t_show = 'the walking dead'
-    #~ t_season = 2
-    #~ t_lastshowed = 3
-    #~ 
-    #~ ep_to_download = [ep for ep in search_for_new_episodes(t_show,t_season,t_lastshowed)
-                     #~ if is_already_aired(ep)]
-    #~ 
-    #~ for ep in ep_to_download:
-        #~ term = search_term(ep)        
-        #~ torrents = tpb.search(term)[:5]
-        #~ for t in torrents:
-            #~ print t['name'] + ' / '+ str(t['size_of'])+'   ' + str(qualities.get_quality(t['name']))
-    searcher = video.searcher.Searcher()
-    print searcher.search('the walking dead')[0]
+    logging.basicConfig(level = logging.DEBUG)
+    tvsearcher = video.searcher.Searcher()
+    subsearcher = subtitle.searcher.Searcher()

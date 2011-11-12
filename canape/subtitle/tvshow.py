@@ -1,5 +1,5 @@
 #encoding:utf-8
-#       torrent.py
+#       subtitle/tvshow.py
 #       
 #       Copyright 2011 nicolas <nicolas@jombi.fr>
 #       
@@ -20,21 +20,14 @@
 
 from canape.utils import PluginMount
 
-class TorrentSearcher:
-    """ Base object for torrent search web site API
+class TvShowSubtitle:
+    """ Base object for tvshow subtitle search web site API
     
-    A TorrentSearcher object must have a search(term, quality) function that return a
-    list of torrent dict with this key:
-    * torrent_name (str)
-    * torrent_size (octet int)
-    * uploaded_date (datetime)
-    * torrent_url (str)
-    * seeders (int)
-    * leechers (int)
-    and an optional torrent_score key (int between 0 and 10) calculated
-    with the web site specific data (eg: user type, note)
+    A TvShowSubtitle object must have a search(tvshow, snum, enum) 
+    function that return a list of subtitle dicts with this key:
+
     """
     __metaclass__ = PluginMount
     
-    def search(self, term, quality=None):
+    def search(self, tvshow, snum, enum):
         raise NotImplementedError()
