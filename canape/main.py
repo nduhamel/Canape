@@ -33,6 +33,7 @@ import tvrage.api
 
 import canape.video
 import canape.subtitle
+import canape.information
 
 logger = logging.getLogger(__name__)
 
@@ -74,8 +75,10 @@ def search_term(ep, quality=None):
 
 if __name__ == '__main__':
     logging.basicConfig(level = logging.DEBUG)
+    
     tvsearcher = canape.video.searcher.Searcher()
     subsearcher = canape.subtitle.searcher.Searcher()
+    information = canape.information.searcher.Searcher()
     
     for r in subsearcher.tvshow_search('the walking dead', 2, 5, 'fr'):
         print r
