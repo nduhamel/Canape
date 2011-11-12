@@ -62,16 +62,6 @@ def is_already_aired(ep):
     """
     return ep['airdate'] <= datetime.date.today()
     
-def search_term(ep, quality=None):
-    """ take an episode dict like them returned by 
-    search_for_new_episodes() and a quality like descripted 
-    in QUALITY
-    return the best torrent found
-    """
-    search_term = '{0[sname]} S{0[snum]:0>2}E{0[enum]:0>2}'.format(ep)
-    if quality:
-        search_term = search_term + ' ' + quality
-    return search_term
 
 if __name__ == '__main__':
     logging.basicConfig(level = logging.DEBUG)
@@ -80,5 +70,5 @@ if __name__ == '__main__':
     subsearcher = canape.subtitle.searcher.Searcher()
     information = canape.information.searcher.Searcher()
     
-    for r in subsearcher.tvshow_search('the walking dead', 2, 5, 'fr'):
-        print r
+    for r in tvsearcher.tvshow_search('the walking dead', 2, 3, '720p'):
+        print r['torrent_name']

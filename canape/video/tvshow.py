@@ -1,5 +1,5 @@
 #encoding:utf-8
-#       torrent.py
+#       tvshow.py
 #       
 #       Copyright 2011 nicolas <nicolas@jombi.fr>
 #       
@@ -18,18 +18,11 @@
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
 
-class TorrentSearcher:
-    """ Base object for torrent search web site API
+from canape.utils import PluginMount
+
+class TvShowSearcher:
+    """ Base object for tvshow search web site API  """
+    __metaclass__ = PluginMount
     
-    A TorrentSearcher object *_search functions must return a
-    list of torrent dict with this key:
-    * type with value 'torrent'
-    * torrent_name (str)
-    * torrent_size (octet int)
-    * uploaded_date (datetime)
-    * torrent_url (str)
-    * seeders (int)
-    * leechers (int)
-    and an optional torrent_score key (int between 0 and 10) calculated
-    with the web site specific data (eg: user type, note)
-    """
+    def tvshow_search(self, term, snum, enum, quality=None):
+        raise NotImplementedError()

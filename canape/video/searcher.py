@@ -22,28 +22,26 @@ import pkgutil
 import logging
 
 from canape.video.torrent import TorrentSearcher
+from canape.video.tvshow import TvShowSearcher
 
 logger = logging.getLogger(__name__)
 
 class Searcher:
-    """ Interface to searcher objects 
-    
-    A searcher object must have a search(term, quality) function
-    that return a list of results dict
-    """
+    """ Interface to searcher objects """
     
     def __init__(self):
         """ Load all search class"""
         path = os.path.dirname(__file__) + '/sources'
         self.sources_package = self._load_sources(path)
-        self.torrent_sources = [s() for s in TorrentSearcher.plugins]
-
-    def search(self, term, quality=None):
+        self.tvshow_sources = [s() for s in TvShowSearcher.plugins]
+        
+    
+    def tvshow_search(self, term, snum, enum, quality=None):
         results = []
-        for source in self.torrent_sources:
-            results.extend(source.search(term, quality))
+        for source in self.tvshow_sources:
+            results.extend(source.tvshow_search(term, snum, enum, quality))
         return results
-            
+    
     def _load_sources(self, path):
         loaded = []
         for module_loader, name, ispkg in pkgutil.walk_packages(path=[path,]):

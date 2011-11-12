@@ -17,34 +17,41 @@
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
+import logging
 
 import pytpb
 
+from canape.video import tvshow
 from canape.video import torrent
 
-class ThePirateBay(torrent.TorrentSearcher):
+logger = logging.getLogger(__name__)
+
+
+class ThePirateBay(torrent.TorrentSearcher, tvshow.TvShowSearcher):
     """ Adaptater for pytpb the python API for The Pirate Bay"""
     
     name = 'The Pirate Bay'
     
-    cat = { '1080p': 208,
+    cat_tvshow = { '1080p': 208,
             '720p': 208,
     }
     
     def __init__(self):
         self.tpb = pytpb.ThePirateBay()
     
-    def search(self, term, quality=None):
+    def tvshow_search(self, showname, snum, enum, quality=None):
+        cat = self.cat_tvshow.get(quality, None)
+        search_term='{0} S{1:0>2}E{2:0>2}'.format(showname, snum, enum)
+        return self.search(search_term, quality, cat)
+
+    def search(self, term, quality=None, cat=None):
         
         if quality:
             term = term + ' ' + quality
-        
-        cat = self.cat.get(quality, None)
+        logger.info("Search for '%s' in cat: %s" % (term, cat))
         results = []
-        
         for r in self.tpb.search(term, cat):
             results.append( self._process(r) )
-        
         return results
     
     def _process(self, torrent):
