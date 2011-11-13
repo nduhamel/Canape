@@ -24,17 +24,19 @@ class TvShow:
     """ Base object for tvshow informations sources 
     
     TvShow object api description:
-    All information are retrieved by dictionary interface 
-    (eg: __getitem__() )
-    
-    exemple:
-       >> tvshow['dexter'][1][2]
-    return the dexter second episode of season one
-       >> tvshow['dexter']
-    return seasons list
-       >> tvshow['dexter'][1] 
-    return episodes list
     
     """
-    
     __metaclass__ = PluginMount
+        
+    def get_seasons(self, seriename):
+        """ Return list of seasons """
+        raise NotImplementedError()
+        
+    def get_episodes(self, seriename, snum):
+        """ Return list of episodes """
+        raise NotImplementedError()
+    
+    def get_airdate(self, seriename, snum, enum):
+        """ Return airdate (datetime) """
+        raise NotImplementedError()
+    

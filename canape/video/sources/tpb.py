@@ -63,7 +63,8 @@ class ThePirateBay(torrent.TorrentSearcher, tvshow.TvShowSearcher):
     def _translate(self, torrent):
         """ translate a torrent dict from pytpb to a canonical torrent
         dict"""
-        return { 'torrent_name': torrent['name'],
+        return { 'type' : 'torrent',
+                 'torrent_name': torrent['name'],
                  'torrent_size': torrent['size_of'],
                  'uploaded_date': torrent['uploaded_at'],
                  'torrent_url': torrent['torrent_url'],

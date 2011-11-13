@@ -20,7 +20,7 @@
 """
 Try to watch for new episodes and download them
 dep:
- python-tvrage
+ python-tvrage      http://pypi.python.org/pypi/python-tvrage/
  pytpb              https://github.com/nduhamel/pytpb
  tvsubtitles_api    https://github.com/nduhamel/tvsubtitles_api
  
@@ -29,7 +29,6 @@ dep:
 import datetime
 import logging
 
-import tvrage.api
 
 import canape.video
 import canape.subtitle
@@ -37,30 +36,6 @@ import canape.information
 
 logger = logging.getLogger(__name__)
 
-def search_for_new_episodes(seriename, season, lastviewed):
-    """ Return list of next episodes, episodes are dict:
-    keys: sname, ename, enum, snum, airdate"""
-    
-    show = tvrage.api.Show(seriename)
-    season = show.season(season)
-    next_ep = season.keys()[lastviewed:]
-    data = []
-    for ep in next_ep:
-        e = {}
-        e['sname'] = show.name
-        e['ename'] = season[ep].title
-        e['enum'] = season[ep].number
-        e['snum'] = season[ep].season
-        e['airdate'] = season[ep].airdate
-        data.append(e)
-    return data
-
-def is_already_aired(ep):
-    """ take an episode dict like them returned by 
-    search_for_new_episodes() and return True if
-    it have been already aired
-    """
-    return ep['airdate'] <= datetime.date.today()
     
 
 if __name__ == '__main__':
@@ -70,5 +45,6 @@ if __name__ == '__main__':
     subsearcher = canape.subtitle.searcher.Searcher()
     information = canape.information.searcher.Searcher()
     
-    for r in tvsearcher.tvshow_search('the walking dead', 2, 3, '720p'):
-        print r['torrent_name']
+    print information.get_seasons('Dexter')
+    print information.get_episodes('Dexter', 1)
+    print information.get_airdate('Dexter',6,12)

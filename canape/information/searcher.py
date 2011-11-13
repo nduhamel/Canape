@@ -35,6 +35,18 @@ class Searcher:
         self.sources_package = self._load_sources(path)
         self.tvshow_sources = [s() for s in TvShow.plugins]
     
+    def get_seasons(self, seriename):
+        """ Return list of seasons """
+        return self.tvshow_sources[0].get_seasons(seriename)
+        
+    def get_episodes(self, seriename, snum):
+        """ Return list of episodes """
+        return self.tvshow_sources[0].get_episodes(seriename, snum)
+    
+    def get_airdate(self, seriename, snum, enum):
+        """ Return airdate (datetime) """
+        return self.tvshow_sources[0].get_airdate(seriename, snum, enum)
+        
     def _load_sources(self, path):
         loaded = []
         for module_loader, name, ispkg in pkgutil.walk_packages(path=[path,]):
