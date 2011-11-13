@@ -81,12 +81,12 @@ class Canapedb(object):
             name = elem.attrib['name']
             snum = elem[0].attrib['snum']
             enum = elem[0].attrib['enum']
-            # Create a generator
-            yield {'name':name, 'snum':snum, 'enum':enum}
             #Clear memory
             elem.clear()
             while elem.getprevious() is not None:
                 del elem.getparent()[0]
+            # Create a generator
+            yield {'name':name, 'snum':snum, 'enum':enum}
         del context
     
     def _fast_iter(self, function):
