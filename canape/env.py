@@ -1,5 +1,5 @@
 #encoding:utf-8
-#       main.py
+#       env.py
 #       
 #       Copyright 2011 nicolas <nicolas@jombi.fr>
 #       
@@ -17,32 +17,18 @@
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
-"""
-Try to watch for new episodes and download them
-dep:
- python-tvrage      http://pypi.python.org/pypi/python-tvrage/
- pytpb              https://github.com/nduhamel/pytpb
- tvsubtitles_api    https://github.com/nduhamel/tvsubtitles_api
- 
- //bencode            http://pypi.python.org/pypi/bencode/  for .torrent decode
-"""
-import logging
+import os
 
-import canape.video
-import canape.subtitle
-import canape.information
-import canape.env
-
-logger = logging.getLogger(__name__)
-
-
-if __name__ == '__main__':
-    logging.basicConfig(level = logging.DEBUG)
+class Environement(dict):
+    """ A proxy object for user env 
     
-    tvsearcher = canape.video.searcher.Searcher()
-    subsearcher = canape.subtitle.searcher.Searcher()
-    information = canape.information.searcher.Searcher()
+    TODO: make it platform independent
     
-    env = canape.env.Environement()
-    print "Config dir: %s" % env['CONFIG_HOME']
-    print "Data dir: %s" % env['DATA_HOME']
+    * Linux Desktop Standar directory:
+    http://standards.freedesktop.org/basedir-spec/basedir-spec-latest.html
+    """
+    def __init__(self):
+        dict.__init__(self)
+        self['HOME'] = os.environ['HOME']
+        self['CONFIG_HOME'] = os.environ.get('XDG_CONFIG_HOME', self['HOME']+'/.config')
+        self['DATA_HOME'] = os.environ.get('XDG_DATA_HOME', self['HOME']+'/.local/share')
