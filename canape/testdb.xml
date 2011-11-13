@@ -1,0 +1,9 @@
+<series>
+<serie name="The Walking Dead">
+        <lastest_ep snum="2" enum="3"/>
+    </serie>
+
+<serie name="Dexter">
+        <lastest_ep snum="6" enum="1"/>
+    </serie>
+</series>
