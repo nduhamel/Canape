@@ -29,27 +29,38 @@ class Searcher:
     """ Interface to informations searcher objects 
     """
     
-    def __init__(self):
+    def __init__(self, used_source=None):
         """ Load all search class"""
         path = os.path.dirname(__file__) + '/sources'
-        self.sources_package = self._load_sources(path)
-        self.tvshow_sources = [s() for s in TvShow.plugins]
+        self.sources_package = self._load_sources(path, used_source)
+        available_tvshow_sources = [s() for s in TvShow.plugins]
+        if len(available_tvshow_sources) == 0:
+            if used_source == None:
+                pass #Raise an error "no available sources"
+            else:
+                pass #Raise an error "Source: %s not found"
+        else:
+            self.source = available_tvshow_sources[0]            
     
     def get_seasons(self, seriename):
         """ Return list of seasons """
-        return self.tvshow_sources[0].get_seasons(seriename)
+        return self.source.get_seasons(seriename)
         
     def get_episodes(self, seriename, snum):
         """ Return list of episodes """
-        return self.tvshow_sources[0].get_episodes(seriename, snum)
+        return self.source.get_episodes(seriename, snum)
     
     def get_airdate(self, seriename, snum, enum):
         """ Return airdate (datetime) """
-        return self.tvshow_sources[0].get_airdate(seriename, snum, enum)
+        return self.source.get_airdate(seriename, snum, enum)
         
-    def _load_sources(self, path):
+    def _load_sources(self, path, used_source=None):
         loaded = []
         for module_loader, name, ispkg in pkgutil.walk_packages(path=[path,]):
-            logger.debug("Import: %s" % name)
-            loaded.append( module_loader.find_module(name).load_module(name) )
+            if used_source == None:
+                logger.debug("All import: %s" % name[8:])
+                loaded.append( module_loader.find_module(name).load_module(name) )
+            elif name[8:] == used_source:
+                logger.debug("Import specified source: %s" % name[8:])
+                loaded.append( module_loader.find_module(name).load_module(name) )
         return loaded

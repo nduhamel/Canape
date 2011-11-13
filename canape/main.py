@@ -23,7 +23,7 @@ dep:
  python-tvrage      http://pypi.python.org/pypi/python-tvrage/
  pytpb              https://github.com/nduhamel/pytpb
  tvsubtitles_api    https://github.com/nduhamel/tvsubtitles_api
- 
+ configobj      
  //bencode            http://pypi.python.org/pypi/bencode/  for .torrent decode
 """
 import logging
@@ -31,18 +31,16 @@ import logging
 import canape.video
 import canape.subtitle
 import canape.information
-import canape.env
+import canape.config
 
 logger = logging.getLogger(__name__)
-
+    
 
 if __name__ == '__main__':
     logging.basicConfig(level = logging.DEBUG)
     
-    tvsearcher = canape.video.searcher.Searcher()
-    subsearcher = canape.subtitle.searcher.Searcher()
-    information = canape.information.searcher.Searcher()
+    config = canape.config.CanapeConfig()
     
-    env = canape.env.Environement()
-    print "Config dir: %s" % env['CONFIG_HOME']
-    print "Data dir: %s" % env['DATA_HOME']
+    tvsearcher = canape.video.searcher.Searcher(config['sources'].as_list('video'))
+    subsearcher = canape.subtitle.searcher.Searcher(config['sources'].as_list('subtitle'))
+    information = canape.information.searcher.Searcher(config['sources']['information'])

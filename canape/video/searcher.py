@@ -29,10 +29,10 @@ logger = logging.getLogger(__name__)
 class Searcher:
     """ Interface to searcher objects """
     
-    def __init__(self):
+    def __init__(self, used_sources=None):
         """ Load all search class"""
         path = os.path.dirname(__file__) + '/sources'
-        self.sources_package = self._load_sources(path)
+        self.sources_package = self._load_sources(path,used_sources)
         self.tvshow_sources = [s() for s in TvShowSearcher.plugins]
         
     
@@ -42,9 +42,13 @@ class Searcher:
             results.extend(source.tvshow_search(term, snum, enum, quality))
         return results
     
-    def _load_sources(self, path):
+    def _load_sources(self, path, used_sources=None):
         loaded = []
         for module_loader, name, ispkg in pkgutil.walk_packages(path=[path,]):
-            logger.debug("Import: %s" % name)
-            loaded.append( module_loader.find_module(name).load_module(name) )
+            if used_sources == None:
+                logger.debug("All import: %s" % name[8:])
+                loaded.append( module_loader.find_module(name).load_module(name) )
+            elif name[8:] in used_sources:
+                logger.debug("Import specified source: %s" % name[8:])
+                loaded.append( module_loader.find_module(name).load_module(name) )
         return loaded
