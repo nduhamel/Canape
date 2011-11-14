@@ -52,6 +52,23 @@ class Canapedb(object):
         tmp_file.close()
         shutil.move(self.xmlfile+'.tmp', self.xmlfile)
     
+    def update_serie(self, name, new_snum, new_enum):
+        tmp_file = open(self.xmlfile+'.tmp', 'w')
+        tmp_file.write('<series>\n')
+        def do(elem):
+            if elem.attrib['name'] == name:
+                serie = etree.Element("serie", name=name)
+                etree.SubElement(serie, "lastest_ep", snum=str(new_snum), enum=str(new_enum))
+                tmp_file.write( etree.tostring(serie,pretty_print=False))
+            else:
+                tmp_file.write( etree.tostring(elem,pretty_print=False))
+        # Copy original
+        self._fast_iter(do)
+        #End
+        tmp_file.write('</series>')
+        tmp_file.close()
+        shutil.move(self.xmlfile+'.tmp', self.xmlfile)
+    
     def remove_serie(self, name):
         """ Current approach:
         1/ Iter all db and copy it to 'xmlfile.tmp' 
@@ -105,8 +122,13 @@ if __name__ == '__main__':
     for s in db.get_series():
         print s
     print '-----------------------------------------'
-    print 'Adding Dr House and print:'
+    print 'Add Dr House and print:'
     db.add_serie('Dr House', 1,1)
+    for s in db.get_series():
+        print s
+    print '------------------------------------------'
+    print 'Update Dr House to season 3, episode 4 and print'
+    db.update_serie('Dr House', 3, 4)
     for s in db.get_series():
         print s
     print '------------------------------------------'
