@@ -17,100 +17,199 @@
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
-
 # http://filesharingtalk.com/threads/311830-The-Official-Scene-Dictionary
+import tempfile
+import shutil
+import os
+from threading import Lock
+import logging
 
-# 720p 1g a 2.5g
+from lxml import etree
 
-DEFAULT_QUALITY = [
-        {'name': '1080p', 'size': (5000, 20000), 'label': '1080P', 'alternative': [], 'ext':['mkv', 'm2ts']},
-        {'name': '720p', 'size': (3500, 10000), 'label': '720P', 'alternative': [], 'ext':['mkv', 'm2ts']},
-        #~ {'name': ''
-        #~ {'name': 'brrip', 'size': (700, 7000), 'label': 'BR-Rip', 'alternative': ['bdrip'], 'ext':['mkv', 'avi']},
-        #~ {'name': 'dvdr', 'size': (3000, 10000), 'label': 'DVD-R', 'alternative': [], 'ext':['iso', 'img']},
-        #~ {'name': 'dvdrip', 'size': (600, 2400), 'label': 'DVD-Rip', 'alternative': [], 'ext':['avi', 'mpg', 'mpeg']},
-        #~ {'name': 'scr', 'size': (600, 1600), 'label': 'Screener', 'alternative': ['dvdscr', 'ppvrip'], 'ext':['avi', 'mpg', 'mpeg']},
-        #~ {'name': 'r5', 'size': (600, 1000), 'label': 'R5', 'alternative': [], 'ext':['avi', 'mpg', 'mpeg']},
-        #~ {'name': 'tc', 'size': (600, 1000), 'label': 'TeleCine', 'alternative': ['telecine'], 'ext':['avi', 'mpg', 'mpeg']},
-        #~ {'name': 'ts', 'size': (600, 1000), 'label': 'TeleSync', 'alternative': ['telesync'], 'ext':['avi', 'mpg', 'mpeg']},
-        #~ {'name': 'cam', 'size': (600, 1000), 'label': 'Cam', 'alternative': [], 'ext':['avi', 'mpg', 'mpeg']}
-        ]
+from canape.utils import synchronized
 
-class Quality:
-    """ Represent a video quality """
+logger = logging.getLogger(__name__)
+LOCK = Lock()
+
+class Quality(object):
     
-    def __init__(self, label, name, size, ext, alternative=[]):
-        """
-        Keyword arguments:
-        label -- str label for user display
-        name  -- str name searched in file name
-        size  -- tuple of int (min,max) in megaoctet
-        ext   -- tuple of str contain all accepted file extension
-        alternative -- tuple of string accepted if name isn't found
-        """
-        self.label = label
-        self.name = name
-        self.size = size
-        self.ext = ext
-        self.alternative = alternative
-        
-    def score(self, filename, size=None, ext=None):
-        """ return a concordance score between the filename
-        and the quality
-        return int [0;100]
-        """
-        score = 0
-        # if name, size and ext concord we can believe it's ok
-        if self.name in filename:
-            score += 40
-        else: 
-            score -= 40
-            
-        if size:
-            if size >= self.size[0] and size <= self.size[1]:
-                score += 30
-            elif size < self.size[0]:
-                score -= 30
-            elif size > self.size[1]:
-                score += 20
-        
-        if ext:
-            if ext in self.ext:
-                score += 30
+    def __init__(self, label=None, size=None, extensions=[], 
+                 keywords=[], extras=[],fromxml=None):
+
+        if label == None and fromxml == None:
+            raise ValueError()
+        if label is not None and size == None:
+            raise ValueError()
+        if fromxml is not None:
+            self._populate_from_xml(fromxml)
+        else:
+            self.label = label
+            self.size = size
+            self.extensions = extensions
+            self.keywords = keywords
+            self.extras = extras
+    
+    def _populate_from_xml(self, fromxml):
+        for e in fromxml:
+            if e.tag == 'label':
+                setattr(self, 'label', e.text.lower())
+            elif e.tag == 'size':
+                setattr(self, 'size', (int(e.attrib['min']), int(e.attrib['max'])))
             else:
-                score -= 50 #Realy bad !!
-        
-        if score < 0:
-            score = 0
-        return score
-
-class Qualities:
-    """ Container and interface for all kowned qualities """
+                setattr(self, e.tag, [child.text.lower() for child in e.iterchildren()])
     
-    def __init__(self):
-        self._qualities = []
-        #Load default:
-        for q in DEFAULT_QUALITY:
-           self._qualities.append( Quality(q['label'],q['name'], 
-                                           q['size'], q['ext'], 
-                                           q['alternative']
-                                           )
-           )
+    def _to_xml(self):
+        ele_quality = etree.Element("quality")
+        etree.SubElement(ele_quality, "label").text = self.label
+        etree.SubElement(ele_quality, "size", min=str(self.size[0]), max=str(self.size[1]))
+        ele_extensions = etree.Element("extensions")
+        for ext in self.extensions:
+            etree.SubElement(ele_extensions, "ext").text = ext
+        ele_quality.append(ele_extensions)
+        
+        ele_keywords = etree.Element("keywords")
+        for keyword in self.keywords:
+            etree.SubElement(ele_keywords, "keyword").text = keyword
+        ele_quality.append(ele_keywords)
+        
+        ele_extras = etree.Element("extras")
+        for extra in self.extras:
+            etree.SubElement(ele_extras, "extra").text = extra
+        ele_quality.append(ele_extras)
+        return etree.tostring(ele_quality,pretty_print=True)
+    
+    def test_quality(self, name, size=None, extension=None):
+        scoring = {'label': 50, 'extensions': 30, 'size': 25, 'keywords': 10, 'extras': 5 }
+        name = name.lower()
+        score = 0
+        
+        if self.label in name:
+            score += scoring['label']
+        else:
+            score -= scoring['label']
+        
+        if size is not None:
+            if size >= self.size[0] and size <= self.size[1]:
+                score += scoring['size']
+            else:
+                score -= scoring['size']
+        
+        if extension is not None:
+            found = False
+            for ext in self.extensions:
+                if ext == extension:
+                    score += scoring['extensions']
+                    found = True
+            if found == False:
+                score -= scoring['extensions']
+            
+        for keyword in self.keywords:
+            if keyword in name:
+                score += scoring['keywords']
+
+        for extra in self.extras:
+            if keyword in name:
+                score += scoring['extras']
+        return score
+        
+    def __repr__(self):
+        return self._to_xml()
     
     def __str__(self):
-        return "/".join([q.label for q in self._qualities])
+        return self.label
+
+class Qualities(object):
+    def __init__(self):
+        self.db = Qualitiesdb('qualities.xml')
+        self.qualities = list(self.db.iter_qualities())
     
-    def get_quality(self, filename, size=None, ext=None):
-        """ return the quality most likely """
-        result = []
-        for q in self._qualities:
-            result.append( (q.label , q.score(filename, size, ext)))
-        result = sorted(result, key=lambda q: q[1], reverse=True)
-        if result[0][1]:
-            return result[0]
+    def compute_scoring(self, name, size=None, extension=None):
+        """ Compute qualities score
+        return a dict with:
+            * quality's label as key
+            * score as value """
+        r = {}
+        for q in self.qualities:
+            r[q.label] = q.test_quality(name, size, extension)
+        return r
+
+class Qualitiesdb(object):
+    
+    def __init__(self, xmlfile):
+        self.xmlfile = xmlfile
+        
+    @synchronized(LOCK)
+    def add_quality(self, quality):
+        tmp_file  = tempfile.NamedTemporaryFile(delete=False)
+        tmp_file.write('<qualities>\n')
+        def do(elem):
+            tmp_file.write( etree.tostring(elem,pretty_print=False))
+        # Copy original
+        self._fast_iter(do)
+        # Add quality:
+        tmp_file.write(repr(quality))
+        #End
+        tmp_file.write('</qualities>')
+        tmp_file.close()
+        shutil.move(tmp_file.name, self.xmlfile)
+    
+    @synchronized(LOCK)
+    def remove_quality(self, label):
+        self.tmpfound=False
+        tmp_file  = tempfile.NamedTemporaryFile(delete=False)
+        tmp_file.write('<qualities>\n')
+        def do(elem):
+            if self.tmpfound:
+                tmp_file.write( etree.tostring(elem,pretty_print=False))
+                return
+            for child in elem.iterchildren():
+                if child.tag == 'label' and child.text == label:
+                    self.tmpfound = True
+                    logger.debug('Remove %s' % label)
+                    break
+            if not self.tmpfound:
+                tmp_file.write( etree.tostring(elem,pretty_print=False))
+        # Copy original
+        self._fast_iter(do)
+        if self.tmpfound:
+            tmp_file.write('</qualities>')
+            tmp_file.close()
+            shutil.move(tmp_file.name, self.xmlfile)
         else:
-            return None
+            logger.error("Can't remove %s because it don't exist in db" % name)
+            tmp_file.close()
+            os.remove(tmp_file.name)
+        
+    @synchronized(LOCK)
+    def iter_qualities(self):
+        context = etree.iterparse(self.xmlfile, events=('end',), tag='quality')
+        for event, elem in context:
+            # Create a generator
+            yield Quality(fromxml=elem)
+            #Clear memory
+            elem.clear()
+            while elem.getprevious() is not None:
+                del elem.getparent()[0]
+        del context
+        
+    def _fast_iter(self, function):
+        context = etree.iterparse(self.xmlfile, events=('end',), tag='quality')
+        for event, elem in context:
+            function(elem)
+            #Clear memory
+            elem.clear()
+            while elem.getprevious() is not None:
+                del elem.getparent()[0]
+        del context
 
 if __name__ == '__main__':
-    print "Knowed qualities: "+str(Qualities())
-    
+    from canape.video.searcher import Searcher
+    searcher = Searcher()
+    qualities = Qualities()
+
+    print "Test qualities"
+    print "Make a search: 'The Walking Dead S02E05' "
+    results = searcher.tvshow_search('The Walking Dead', 2, 5)
+    for r in results:
+        print "Name: %s score: %s " % (r['torrent_name'], 
+            qualities.compute_scoring(r['torrent_name'],size=r['torrent_size']))
