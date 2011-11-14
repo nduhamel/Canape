@@ -49,10 +49,12 @@ class Canape(object):
         self.information = Information(self.config['sources']['information'])
     
     def run(self):
+        todownload = []
         for serie in self.db.get_series():
-            self.check(serie)
+            todownload.extend( self.check(serie) )
+        for ep in todownload:
+            self.retrive(ep[0], ep[1], ep[2])
         
-    
     def check(self, serie):
         todownload = []
         ep= self.information.get_episodes(serie['name'], serie['snum'])
@@ -60,9 +62,16 @@ class Canape(object):
             airdate = self.information.get_airdate(serie['name'], serie['snum'], ep)
             if airdate <= datetime.date.today():
                 todownload.append( (serie['name'], serie['snum'], ep) )
-        print todownload
-
-
+        return todownload
+    
+    def retrive(self, name, snum, enum):
+        logger.info('Process %s season %s episode %s' % (name, snum, enum) )
+        vresults = self.video.tvshow_search(name, snum, enum, '720p')
+        vid = vresults[0] # We need to choise
+        logger.info('Video found: %s' % vid['torrent_name'])
+        subresults = self.subtitle.tvshow_search(name, snum, enum, 'fr')
+        sub = subresults[0] # We need to choise
+        
 if __name__ == '__main__':
     logging.basicConfig(level = logging.DEBUG)
     canape = Canape()
