@@ -27,20 +27,44 @@ dep:
  //bencode            http://pypi.python.org/pypi/bencode/  for .torrent decode
 """
 import logging
+import datetime
 
-import canape.video
-import canape.subtitle
-import canape.information
-import canape.config
+from canape.video import Searcher as Video
+from canape.subtitle import Searcher as Subtitle
+from canape.information import Searcher as Information
+from canape.config import CanapeConfig
+from canape.xmldb import Canapedb
 
 logger = logging.getLogger(__name__)
     
+class Canape(object):
+    
+    def __init__(self):
+        
+        self.config = CanapeConfig()
+        self.db = Canapedb('testdb.xml')
+        
+        self.video = Video(self.config['sources'].as_list('video'))
+        self.subtitle = Subtitle(self.config['sources'].as_list('subtitle'))
+        self.information = Information(self.config['sources']['information'])
+    
+    def run(self):
+        for serie in self.db.get_series():
+            self.check(serie)
+        
+    
+    def check(self, serie):
+        todownload = []
+        ep= self.information.get_episodes(serie['name'], serie['snum'])
+        for ep in ep[serie['enum']:]:
+            airdate = self.information.get_airdate(serie['name'], serie['snum'], ep)
+            if airdate <= datetime.date.today():
+                todownload.append( (serie['name'], serie['snum'], ep) )
+        print todownload
+
 
 if __name__ == '__main__':
     logging.basicConfig(level = logging.DEBUG)
-    
-    config = canape.config.CanapeConfig()
-    
-    tvsearcher = canape.video.searcher.Searcher(config['sources'].as_list('video'))
-    subsearcher = canape.subtitle.searcher.Searcher(config['sources'].as_list('subtitle'))
-    information = canape.information.searcher.Searcher(config['sources']['information'])
+    canape = Canape()
+    canape.run()
+
