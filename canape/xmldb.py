@@ -19,14 +19,20 @@
 #       MA 02110-1301, USA.
 import tempfile
 import shutil
+from threading import Lock
 
 from lxml import etree
+
+from canape.utils import synchronized
+
+LOCK = my_lock = Lock()
 
 class Canapedb(object):
     
     def __init__(self, xmlfile):
         self.xmlfile = xmlfile
-            
+    
+    @synchronized(LOCK)
     def add_serie(self, name, lastest_snum, lastest_enum):
         """ Current approach:
         1/ Iter all db and copy it to a tempfile
@@ -38,7 +44,6 @@ class Canapedb(object):
         Cons:
          - Many file access
         """
-        #~ tmp_file = open(self.xmlfile+'.tmp', 'w')
         tmp_file  = tempfile.NamedTemporaryFile(delete=False)
         tmp_file.write('<series>\n')
         def do(elem):
@@ -54,7 +59,8 @@ class Canapedb(object):
         tmp_file.write('</series>')
         tmp_file.close()
         shutil.move(tmp_file.name, self.xmlfile)
-    
+        
+    @synchronized(LOCK)
     def update_serie(self, name, new_snum, new_enum):
         tmp_file  = tempfile.NamedTemporaryFile(delete=False)
         tmp_file.write('<series>\n')
@@ -72,6 +78,7 @@ class Canapedb(object):
         tmp_file.close()
         shutil.move(tmp_file.name, self.xmlfile)
     
+    @synchronized(LOCK)
     def remove_serie(self, name):
         """ Current approach:
         1/ Iter all db and copy it to a tempfile
@@ -95,12 +102,13 @@ class Canapedb(object):
         tmp_file.close()
         shutil.move(tmp_file.name, self.xmlfile)
     
+    @synchronized(LOCK)
     def get_series(self):
         context = etree.iterparse(self.xmlfile, events=('end',), tag='serie')
         for event, elem in context:
             name = elem.attrib['name']
-            snum = elem[0].attrib['snum']
-            enum = elem[0].attrib['enum']
+            snum = int(elem[0].attrib['snum'])
+            enum = int(elem[0].attrib['enum'])
             #Clear memory
             elem.clear()
             while elem.getprevious() is not None:
