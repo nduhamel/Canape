@@ -17,7 +17,9 @@
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
+import tempfile
 import shutil
+
 from lxml import etree
 
 class Canapedb(object):
@@ -27,16 +29,17 @@ class Canapedb(object):
             
     def add_serie(self, name, lastest_snum, lastest_enum):
         """ Current approach:
-        1/ Iter all db and copy it to 'xmlfile.tmp'
+        1/ Iter all db and copy it to a tempfile
         2/ Add node
-        3/ move xmlfile.tmp to xmlfile and erase the old one
+        3/ move tempfile to xmlfile and erase the old one
         
         Pros:
          - Don't put the all xml file in memory
         Cons:
          - Many file access
         """
-        tmp_file = open(self.xmlfile+'.tmp', 'w')
+        #~ tmp_file = open(self.xmlfile+'.tmp', 'w')
+        tmp_file  = tempfile.NamedTemporaryFile(delete=False)
         tmp_file.write('<series>\n')
         def do(elem):
             tmp_file.write( etree.tostring(elem,pretty_print=False))
@@ -50,10 +53,10 @@ class Canapedb(object):
         #End
         tmp_file.write('</series>')
         tmp_file.close()
-        shutil.move(self.xmlfile+'.tmp', self.xmlfile)
+        shutil.move(tmp_file.name, self.xmlfile)
     
     def update_serie(self, name, new_snum, new_enum):
-        tmp_file = open(self.xmlfile+'.tmp', 'w')
+        tmp_file  = tempfile.NamedTemporaryFile(delete=False)
         tmp_file.write('<series>\n')
         def do(elem):
             if elem.attrib['name'] == name:
@@ -67,20 +70,20 @@ class Canapedb(object):
         #End
         tmp_file.write('</series>')
         tmp_file.close()
-        shutil.move(self.xmlfile+'.tmp', self.xmlfile)
+        shutil.move(tmp_file.name, self.xmlfile)
     
     def remove_serie(self, name):
         """ Current approach:
-        1/ Iter all db and copy it to 'xmlfile.tmp' 
+        1/ Iter all db and copy it to a tempfile
            only if serie's name is not name
-        3/ move xmlfile.tmp to xmlfile and erase the old one
+        3/ move tempfile to xmlfile and erase the old one
         
         Pros:
          - Don't put the all xml file in memory
         Cons:
          - Many file access
         """
-        tmp_file = open(self.xmlfile+'.tmp', 'w')
+        tmp_file  = tempfile.NamedTemporaryFile(delete=False)
         tmp_file.write('<series>\n')
         def do(elem):
             if not elem.attrib['name'] == name:
@@ -90,7 +93,7 @@ class Canapedb(object):
         #End
         tmp_file.write('</series>')
         tmp_file.close()
-        shutil.move(self.xmlfile+'.tmp', self.xmlfile)
+        shutil.move(tmp_file.name, self.xmlfile)
     
     def get_series(self):
         context = etree.iterparse(self.xmlfile, events=('end',), tag='serie')
