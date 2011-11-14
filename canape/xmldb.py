@@ -19,13 +19,16 @@
 #       MA 02110-1301, USA.
 import tempfile
 import shutil
+import os
 from threading import Lock
+import logging
 
 from lxml import etree
 
 from canape.utils import synchronized
 
-LOCK = my_lock = Lock()
+logger = logging.getLogger(__name__)
+LOCK = Lock()
 
 class Canapedb(object):
     
@@ -54,7 +57,7 @@ class Canapedb(object):
         serie = etree.Element("serie", name=name)
         etree.SubElement(serie, "lastest_ep", snum=str(lastest_snum), enum=str(lastest_enum))
         tmp_file.write(etree.tostring(serie,pretty_print=True))
-        
+        logger.debug('Add %s to season %s episode %s' % (name, lastest_snum, lastest_enum))
         #End
         tmp_file.write('</series>')
         tmp_file.close()
@@ -62,10 +65,13 @@ class Canapedb(object):
         
     @synchronized(LOCK)
     def update_serie(self, name, new_snum, new_enum):
+        self.tmpfound=False
         tmp_file  = tempfile.NamedTemporaryFile(delete=False)
         tmp_file.write('<series>\n')
         def do(elem):
             if elem.attrib['name'] == name:
+                self.tmpfound=True
+                logger.debug('Update %s to season %s episode %s' % (name, new_snum, new_enum))
                 serie = etree.Element("serie", name=name)
                 etree.SubElement(serie, "lastest_ep", snum=str(new_snum), enum=str(new_enum))
                 tmp_file.write( etree.tostring(serie,pretty_print=False))
@@ -73,10 +79,14 @@ class Canapedb(object):
                 tmp_file.write( etree.tostring(elem,pretty_print=False))
         # Copy original
         self._fast_iter(do)
-        #End
-        tmp_file.write('</series>')
-        tmp_file.close()
-        shutil.move(tmp_file.name, self.xmlfile)
+        if self.tmpfound:
+            tmp_file.write('</series>')
+            tmp_file.close()
+            shutil.move(tmp_file.name, self.xmlfile)
+        else:
+            logger.error("Can't update %s because it don't exist in db" % name)
+            tmp_file.close()
+            os.remove(tmp_file.name)
     
     @synchronized(LOCK)
     def remove_serie(self, name):
@@ -90,17 +100,25 @@ class Canapedb(object):
         Cons:
          - Many file access
         """
+        self.tmpfound=False
         tmp_file  = tempfile.NamedTemporaryFile(delete=False)
         tmp_file.write('<series>\n')
         def do(elem):
             if not elem.attrib['name'] == name:
                 tmp_file.write( etree.tostring(elem,pretty_print=False))
+            else:
+                self.tmpfound = True
+                logger.debug('Remove %s' % name)
         # Copy original
         self._fast_iter(do)
-        #End
-        tmp_file.write('</series>')
-        tmp_file.close()
-        shutil.move(tmp_file.name, self.xmlfile)
+        if self.tmpfound:
+            tmp_file.write('</series>')
+            tmp_file.close()
+            shutil.move(tmp_file.name, self.xmlfile)
+        else:
+            logger.error("Can't remove %s because it don't exist in db" % name)
+            tmp_file.close()
+            os.remove(tmp_file.name)
     
     @synchronized(LOCK)
     def get_series(self):
