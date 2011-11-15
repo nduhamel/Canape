@@ -34,7 +34,7 @@ from canape.subtitle import Searcher as Subtitle
 from canape.information import Searcher as Information
 from canape.config import CanapeConfig
 from canape.xmldb import Canapedb
-from canape.quality import Qualities
+from canape.chooser import VideoChooser
 
 logger = logging.getLogger(__name__)
     
@@ -45,9 +45,13 @@ class Canape(object):
         self.config = CanapeConfig()
         self.db = Canapedb('testdb.xml')
         
+        #Load searcher object
         self.video = Video(self.config['sources'].as_list('video'))
         self.subtitle = Subtitle(self.config['sources'].as_list('subtitle'))
         self.information = Information(self.config['sources']['information'])
+        
+        #Load chooser object
+        self.videochooser = VideoChooser('qualities.xml')
     
     def run(self):
         todownload = []
@@ -68,7 +72,7 @@ class Canape(object):
     def retrive(self, name, snum, enum):
         logger.info('Process %s season %s episode %s' % (name, snum, enum) )
         vresults = self.video.tvshow_search(name, snum, enum, '720p')
-        vid = vresults[0] # We need to choise
+        vid = self.videochooser.choose(vresults) # We need to choise
         print vid
         #~ logger.info('Video found: %s' % vid['torrent_name'])
         #~ subresults = self.subtitle.tvshow_search(name, snum, enum, 'fr')

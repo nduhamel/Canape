@@ -119,8 +119,8 @@ class Quality(object):
         return self.label
 
 class Qualities(object):
-    def __init__(self):
-        self.db = Qualitiesdb('qualities.xml')
+    def __init__(self, qualitiesdb):
+        self.db = Qualitiesdb(qualitiesdb)
         self.qualities = list(self.db.iter_qualities())
     
     def compute_scoring(self, name, size=None, extension=None):
@@ -132,6 +132,15 @@ class Qualities(object):
         for q in self.qualities:
             r[q.label] = q.test_quality(name, size, extension)
         return r
+    
+    def quality_bet(self, name, size=None, extension=None):
+        """ Try to determine the quality
+        return a tuple (quality, score)
+        * quality is the quality label
+        * score is an int
+         """
+        computed = self.compute_scoring(name, size, extension)
+        return max(computed.items(), key=lambda q: q[1])
 
 class Qualitiesdb(object):
     
@@ -205,11 +214,12 @@ class Qualitiesdb(object):
 if __name__ == '__main__':
     from canape.video.searcher import Searcher
     searcher = Searcher()
-    qualities = Qualities()
+    qualities = Qualities('qualities.xml')
 
     print "Test qualities"
     print "Make a search: 'The Walking Dead S02E05' "
     results = searcher.tvshow_search('The Walking Dead', 2, 5)
     for r in results:
         print "Name: %s sourcescore: %s  quality score: %s" % (r.name, r.sourcescore,
-            qualities.compute_scoring(r.name,size=r.size))
+            qualities.quality_bet(r.name,size=r.size))
+        
