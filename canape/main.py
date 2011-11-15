@@ -24,6 +24,7 @@ dep:
  pytpb              https://github.com/nduhamel/pytpb
  tvsubtitles_api    https://github.com/nduhamel/tvsubtitles_api
  configobj      
+ transmissionrpc    http://packages.python.org/transmissionrpc/
  //bencode            http://pypi.python.org/pypi/bencode/  for .torrent decode
 """
 import logging
@@ -35,6 +36,7 @@ from canape.information import Searcher as Information
 from canape.config import CanapeConfig
 from canape.xmldb import Canapedb
 from canape.chooser import VideoChooser
+from canape.downloader.downloader import Downloader
 
 logger = logging.getLogger(__name__)
     
@@ -52,6 +54,9 @@ class Canape(object):
         
         #Load chooser object
         self.videochooser = VideoChooser('qualities.xml')
+        
+        #Load downloader object
+        self.downloader = Downloader()
     
     def run(self):
         todownload = []
@@ -73,7 +78,7 @@ class Canape(object):
         logger.info('Process %s season %s episode %s' % (name, snum, enum) )
         vresults = self.video.tvshow_search(name, snum, enum, '720p')
         vid = self.videochooser.choose(vresults) # We need to choise
-        print vid
+        self.downloader.addVideo(vid)
         #~ logger.info('Video found: %s' % vid['torrent_name'])
         #~ subresults = self.subtitle.tvshow_search(name, snum, enum, 'fr')
         #~ sub = subresults[0] # We need to choise

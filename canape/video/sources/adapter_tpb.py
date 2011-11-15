@@ -55,7 +55,8 @@ class ThePirateBay(tvshow.TvShowSearcher):
     
     def _process(self, torrent):
         score = self._score(torrent)
-        return Video('torrent',torrent['name'], torrent['torrent_url'],
+        #Remove https to http
+        return Video('torrent',torrent['name'], 'http://'+torrent['torrent_url'][8:],
                     size=torrent['size_of'], date=torrent['uploaded_at'],
                     sourcescore=score)
     
