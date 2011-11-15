@@ -21,7 +21,6 @@ import os
 import pkgutil
 import logging
 
-from canape.video.torrent import TorrentSearcher
 from canape.video.tvshow import TvShowSearcher
 
 logger = logging.getLogger(__name__)

@@ -22,12 +22,11 @@ import logging
 import pytpb
 
 from canape.video import tvshow
-from canape.video import torrent
+from canape.video.video import Video
 
 logger = logging.getLogger(__name__)
 
-
-class ThePirateBay(torrent.TorrentSearcher, tvshow.TvShowSearcher):
+class ThePirateBay(tvshow.TvShowSearcher):
     """ Adaptater for pytpb the python API for The Pirate Bay"""
     
     name = 'The Pirate Bay'
@@ -56,26 +55,14 @@ class ThePirateBay(torrent.TorrentSearcher, tvshow.TvShowSearcher):
     
     def _process(self, torrent):
         score = self._score(torrent)
-        torrent = self._translate(torrent)
-        torrent['torrent_score'] = score
-        return torrent
-
-    def _translate(self, torrent):
-        """ translate a torrent dict from pytpb to a canonical torrent
-        dict"""
-        return { 'type' : 'torrent',
-                 'torrent_name': torrent['name'],
-                 'torrent_size': torrent['size_of'],
-                 'uploaded_date': torrent['uploaded_at'],
-                 'torrent_url': torrent['torrent_url'],
-                 'seeders': torrent['seeders'],
-                 'leechers': torrent['leechers']
-        }
+        return Video('torrent',torrent['name'], torrent['torrent_url'],
+                    size=torrent['size_of'], date=torrent['uploaded_at'],
+                    sourcescore=score)
     
     def _score(self, torrent):
-        score = 0
+        score = torrent['seeders'] + torrent['leechers'] / 2
         if torrent['user_type'] == 'VIP':
-            score = 10
+            score += score * 0.1 #Add 10%
         elif torrent['user_type'] == 'trusted':
-            score = 5
+            score += score * 0.05 #Add 5%
         return score

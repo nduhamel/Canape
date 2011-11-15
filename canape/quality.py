@@ -211,5 +211,5 @@ if __name__ == '__main__':
     print "Make a search: 'The Walking Dead S02E05' "
     results = searcher.tvshow_search('The Walking Dead', 2, 5)
     for r in results:
-        print "Name: %s score: %s " % (r['torrent_name'], 
-            qualities.compute_scoring(r['torrent_name'],size=r['torrent_size']))
+        print "Name: %s sourcescore: %s  quality score: %s" % (r.name, r.sourcescore,
+            qualities.compute_scoring(r.name,size=r.size))

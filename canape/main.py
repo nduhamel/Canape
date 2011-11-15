@@ -34,6 +34,7 @@ from canape.subtitle import Searcher as Subtitle
 from canape.information import Searcher as Information
 from canape.config import CanapeConfig
 from canape.xmldb import Canapedb
+from canape.quality import Qualities
 
 logger = logging.getLogger(__name__)
     
@@ -68,9 +69,10 @@ class Canape(object):
         logger.info('Process %s season %s episode %s' % (name, snum, enum) )
         vresults = self.video.tvshow_search(name, snum, enum, '720p')
         vid = vresults[0] # We need to choise
-        logger.info('Video found: %s' % vid['torrent_name'])
-        subresults = self.subtitle.tvshow_search(name, snum, enum, 'fr')
-        sub = subresults[0] # We need to choise
+        print vid
+        #~ logger.info('Video found: %s' % vid['torrent_name'])
+        #~ subresults = self.subtitle.tvshow_search(name, snum, enum, 'fr')
+        #~ sub = subresults[0] # We need to choise
         
 if __name__ == '__main__':
     logging.basicConfig(level = logging.DEBUG)
