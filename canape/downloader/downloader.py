@@ -37,7 +37,7 @@ class Downloader(object):
         logger.debug("Available torrent downloaders: %s" % self.torrent_downloaders)
     
     def addVideo(self, videoObj):
-        self.torrent_downloaders[0].addTorrent(videoObj.download_url)
+        self.torrent_downloaders[0].addTorrent(videoObj)
     
     def _load_downloaders(self, path, used=None):
         loaded = []
