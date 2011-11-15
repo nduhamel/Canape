@@ -29,11 +29,18 @@ class Downloader(object):
     """ Interface to downloader objects 
     """
     
-    def __init__(self, used=None):
+    def __init__(self, config, used=None):
         """ Load all search class"""
         path = os.path.dirname(__file__) + '/adapters'
         self.sources_package = self._load_downloaders(path, used)
-        self.torrent_downloaders = [d() for d in TorrentDownloader.plugins]
+        
+        self.torrent_downloaders=[]
+        for d in TorrentDownloader.plugins:
+            if d.name in config.keys():
+                self.torrent_downloaders.append( d(**config[d.name]) )
+            else:
+                self.torrent_downloaders.append(d())
+        
         logger.debug("Available torrent downloaders: %s" % self.torrent_downloaders)
     
     def addVideo(self, videoObj):

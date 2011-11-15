@@ -17,10 +17,11 @@
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
-import urllib2
 import urllib
 import hashlib
+import logging
 
+logger = logging.getLogger(__name__)
 
 import bencode
 import transmissionrpc
@@ -28,22 +29,27 @@ import transmissionrpc
 from canape.downloader.torrent import TorrentDownloader
 
 class Transmission(TorrentDownloader):
-    name = 'Transmission'
+    name = 'transmission'
     
-    def __init__(self):
-        self.tc = transmissionrpc.Client('localhost', port=9091)
+    def __init__(self, address=None, port=None, user=None, password=None):
+        
+        #Fallback to default
+        address = address or 'localhost'
+        port = port or 9091
+                
+        self.tc = transmissionrpc.Client(address, port=port, user=user, password=password)
     
     def addTorrent(self, videoObj):
         #Check torrent hash
-        torrent_file = urllib2.urlopen(videoObj.download_url).read()
-        info = bencode.bdecode(torrent_file)['info']
+        torrent = urllib.urlopen(videoObj.download_url).read()
+        info = bencode.bdecode(torrent)['info']
         h = hashlib.sha1()
         h.update(bencode.bencode(info))
         torrentHash = h.hexdigest()
         torrents = [torrent.hashString for torrent in self.tc.list().values()]
         
         if torrentHash in torrents:
-            print "Error Torrent already here"
+            logger.error("Can't add torrent '%s', it's already in downloading" % videoObj.name)
         else:
             self.tc.add_uri(videoObj.download_url)
 

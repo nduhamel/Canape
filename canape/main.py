@@ -56,7 +56,7 @@ class Canape(object):
         self.videochooser = VideoChooser('qualities.xml')
         
         #Load downloader object
-        self.downloader = Downloader()
+        self.downloader = Downloader(config=self.config.get('downloader', {}))
     
     def run(self):
         todownload = []
