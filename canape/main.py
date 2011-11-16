@@ -69,7 +69,10 @@ class Canape(object):
         downloads = []
         for ep in todownload:
             downloads.append(self.getEpisodeDownload(ep[0], ep[1], ep[2], '720p'))
-        #Third step
+            
+        for video in downloads:
+            self.downloader.addVideo(video)
+        
         
     
     def getEpisodeToProcess(self, showname, lastep_snum, lastep_enum):
@@ -84,6 +87,7 @@ class Canape(object):
             airdate = self.information.get_airdate(showname, lastep_snum, ep)
             if airdate <= datetime.date.today():
                 todownload.append( (showname, lastep_snum, ep) )
+        logger.info('For serie: "%s" episodes to download: %s' % (showname, todownload))
         return todownload
     
     def getEpisodeDownload(self, showname, snum, enum, quality=None):
