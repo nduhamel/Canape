@@ -21,6 +21,7 @@ import os
 import pkgutil
 import logging
 
+from canape.exceptions import CanapeException
 from canape.downloader.torrent import TorrentDownloader
 
 logger = logging.getLogger(__name__)
@@ -36,12 +37,18 @@ class Downloader(object):
         
         self.torrent_downloaders=[]
         for d in TorrentDownloader.plugins:
-            if d.name in config.keys():
-                self.torrent_downloaders.append( d(**config[d.name]) )
-            else:
-                self.torrent_downloaders.append(d())
-        
-        logger.debug("Available torrent downloaders: %s" % self.torrent_downloaders)
+            try:
+                if d.name in config.keys():
+                    self.torrent_downloaders.append( d(**config[d.name]) )
+                else:
+                    self.torrent_downloaders.append(d())
+            except CanapeException as e:
+                logger.error("Adapter:%s Error:%s" %(d.name,e))
+                
+        if len(self.torrent_downloaders):
+            logger.debug("Available torrent downloaders: %s" % self.torrent_downloaders)
+        else:
+            logger.error('No available torrent downloaders')
     
     def addVideo(self, videoObj):
         self.torrent_downloaders[0].addTorrent(videoObj)

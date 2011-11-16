@@ -27,6 +27,8 @@ import bencode
 import transmissionrpc
 
 from canape.downloader.torrent import TorrentDownloader
+from canape.exceptions import InvalidConfig
+from canape.downloader.exceptions import RemoteSoftwareUnavailable
 
 class Transmission(TorrentDownloader):
     name = 'transmission'
@@ -36,8 +38,16 @@ class Transmission(TorrentDownloader):
         #Fallback to default
         address = address or 'localhost'
         port = port or 9091
-                
-        self.tc = transmissionrpc.Client(address, port=port, user=user, password=password)
+        
+        try:
+            self.tc = transmissionrpc.Client(address, port=port, user=user, password=password)
+        except transmissionrpc.TransmissionError as e:
+            if isinstance(e.original, transmissionrpc.HTTPHandlerError):
+                if e.original.code == 111:
+                    raise RemoteSoftwareUnavailable('Transmission not started or invalid connection options: %s:%s ' % (address,port))
+                elif e.original.code == 401:
+                    raise InvalidConfig('TransmissionRPC config invalid user:%s password:%s' % (user,password))
+            raise
     
     def addTorrent(self, videoObj):
         #Check torrent hash
