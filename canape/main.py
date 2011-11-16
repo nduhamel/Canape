@@ -60,28 +60,45 @@ class Canape(object):
     
     def run(self):
         todownload = []
-        for serie in self.db.get_series():
-            todownload.extend( self.check(serie) )
+        #First step
+        for lastep in self.db.get_series():
+            todownload.extend( self.getEpisodeToProcess(lastep['name'], 
+                                lastep['snum'], lastep['enum']) 
+                            )
+        #Second step
+        downloads = []
         for ep in todownload:
-            self.retrive(ep[0], ep[1], ep[2])
+            downloads.append(self.getEpisodeDownload(ep[0], ep[1], ep[2], '720p'))
+        #Third step
         
-    def check(self, serie):
+    
+    def getEpisodeToProcess(self, showname, lastep_snum, lastep_enum):
+        """ First process step:
+        return a list of episode tuple (showname, snum, enum) to download
+        
+        Get information by self.information and test airdate
+        """
         todownload = []
-        ep= self.information.get_episodes(serie['name'], serie['snum'])
-        for ep in ep[serie['enum']:]:
-            airdate = self.information.get_airdate(serie['name'], serie['snum'], ep)
+        ep= self.information.get_episodes(showname, lastep_snum)
+        for ep in ep[lastep_enum:]:
+            airdate = self.information.get_airdate(showname, lastep_snum, ep)
             if airdate <= datetime.date.today():
-                todownload.append( (serie['name'], serie['snum'], ep) )
+                todownload.append( (showname, lastep_snum, ep) )
         return todownload
     
-    def retrive(self, name, snum, enum):
-        logger.info('Process %s season %s episode %s' % (name, snum, enum) )
-        vresults = self.video.tvshow_search(name, snum, enum, '720p')
-        vid = self.videochooser.choose(vresults) # We need to choise
-        self.downloader.addVideo(vid)
-        logger.info('Video found: %s' % vid.name)
-        subresults = self.subtitle.tvshow_search(name, snum, enum, 'fr')
-        print subresults # We need to choise
+    def getEpisodeDownload(self, showname, snum, enum, quality=None):
+        """ Second process step: try to retrive download link for an 
+        episode, return a Video object (canape.video.video.Video) or 
+        None """
+        vresults = self.video.tvshow_search(showname, snum, enum, quality)
+        return self.videochooser.choose(vresults) or None
+    
+    def getEpisodeSubtitles(self, videoObj, language):
+        """ Third process step: try to retrive episode's subtitles 
+        return a subtitleObj or None"""
+        raise NotImplementedError()
+        #~ subresults = self.subtitle.tvshow_search(name, snum, enum, language)
+
         
 if __name__ == '__main__':
     logging.basicConfig(level = logging.DEBUG)
