@@ -1,5 +1,8 @@
 <series>
 <serie name="The Walking Dead">
-        <lastest_ep snum="2" enum="3"/>
+        <lastest_ep snum="2" enum="4"/>
     </serie>
+<serie name="Fringe">
+    <lastest_ep snum='4' enum='5'/>
+</serie>
 </series>

@@ -25,7 +25,7 @@ dep:
  tvsubtitles_api    https://github.com/nduhamel/tvsubtitles_api
  configobj      
  transmissionrpc    http://packages.python.org/transmissionrpc/
- //bencode            http://pypi.python.org/pypi/bencode/  for .torrent decode
+ bencode            http://pypi.python.org/pypi/bencode/  for .torrent decode
 """
 import logging
 import datetime
@@ -79,9 +79,9 @@ class Canape(object):
         vresults = self.video.tvshow_search(name, snum, enum, '720p')
         vid = self.videochooser.choose(vresults) # We need to choise
         self.downloader.addVideo(vid)
-        #~ logger.info('Video found: %s' % vid['torrent_name'])
-        #~ subresults = self.subtitle.tvshow_search(name, snum, enum, 'fr')
-        #~ sub = subresults[0] # We need to choise
+        logger.info('Video found: %s' % vid.name)
+        subresults = self.subtitle.tvshow_search(name, snum, enum, 'fr')
+        print subresults # We need to choise
         
 if __name__ == '__main__':
     logging.basicConfig(level = logging.DEBUG)
