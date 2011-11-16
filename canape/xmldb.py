@@ -55,7 +55,7 @@ class Canapedb(object):
         self._fast_iter(do)
         # Add serie:
         serie = etree.Element("serie", name=name)
-        etree.SubElement(serie, "lastest_ep", snum=str(lastest_snum), enum=str(lastest_enum))
+        etree.SubElement(serie, "episode", snum=str(lastest_snum), enum=str(lastest_enum))
         tmp_file.write(etree.tostring(serie,pretty_print=True))
         logger.debug('Add %s to season %s episode %s' % (name, lastest_snum, lastest_enum))
         #End
@@ -73,7 +73,7 @@ class Canapedb(object):
                 self.tmpfound=True
                 logger.debug('Update %s to season %s episode %s' % (name, new_snum, new_enum))
                 serie = etree.Element("serie", name=name)
-                etree.SubElement(serie, "lastest_ep", snum=str(new_snum), enum=str(new_enum))
+                etree.SubElement(serie, "episode", snum=str(new_snum), enum=str(new_enum))
                 tmp_file.write( etree.tostring(serie,pretty_print=False))
             else:
                 tmp_file.write( etree.tostring(elem,pretty_print=False))
