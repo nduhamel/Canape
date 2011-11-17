@@ -26,7 +26,7 @@ from canape.subtitle.tvshow import TvShowSubtitle
 logger = logging.getLogger(__name__)
 
 
-class Searcher:
+class Searcher(object):
     """ Interface to subtitle searcher objects 
     """
     
@@ -41,7 +41,7 @@ class Searcher:
         results = []
         for source in self.tvshow_sources:
             results.extend(source.search(tvshow, snum, enum, language))
-        return results
+        return sorted(results, key=lambda s: s.sourcescore, reverse=True)
     
     def _load_sources(self, path, used_sources=None):
         loaded = []

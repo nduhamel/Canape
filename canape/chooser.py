@@ -20,6 +20,7 @@
 import logging
 
 from canape.quality import Qualities
+from canape.utils import dice_coefficient
 
 logger = logging.getLogger(__name__)
 
@@ -45,6 +46,18 @@ class VideoChooser(object):
             for q, vid in vidq:
                 if q[1] == max_quality_score:
                     return vid
+
+class SubtitleChooser(object):
+    
+    def choose(self, sublist, videoObj=None):
+        
+        if videoObj is None:
+            return sublist[0]
+        
+        scored=[ (dice_coefficient(s.name, videoObj.name), s) for s in sublist]
+        return sorted(scored, key=lambda t: t[0], reverse=True)[0][1]
+    
+    
 
 if __name__ == '__main__':
     from canape.video.searcher import Searcher

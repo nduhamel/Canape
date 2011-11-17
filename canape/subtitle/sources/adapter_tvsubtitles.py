@@ -17,14 +17,27 @@
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
+import urllib
+from tempfile import TemporaryFile
+from zipfile import ZipFile
 import logging
 
 import tvsubtitles_api
 from tvsubtitles_api.tvsubtitles_exceptions import tvsubtitles_languagenotfound
 
 from canape.subtitle.tvshow import TvShowSubtitle
+from canape.subtitle.subtitle import Subtitle
+from canape.exceptions import UnexceptedContent
 
 logger = logging.getLogger(__name__)
+
+def getter(subtitleObj):
+    f,h = urllib.urlretrieve(subtitleObj.download_url)
+    zipf = ZipFile(f)
+    zipfl = zipf.namelist()
+    if not len(zipfl) == 1:
+        raise UnexceptedContent()
+    return zipf.open(zipfl[0])
 
 class TvSubtitles(TvShowSubtitle):
     
@@ -37,7 +50,17 @@ class TvSubtitles(TvShowSubtitle):
     
     def search(self, tvshow, snum, enum, language):
         try:
-            return self.tvsubtitles[tvshow][snum][enum]['languages'][language]
+            subtitles = self.tvsubtitles[tvshow][snum][enum]['languages'][language]
+            return [ self._translate(s) for s in subtitles]
         except tvsubtitles_languagenotfound as  strerror:
             logger.info(strerror)
             return []
+    
+    def _translate(self, subdict):
+        return Subtitle(subdict['name'], subdict['download_url'],
+                        keywords=[subdict['rip'], subdict['release']], 
+                        sourcescore=self._score(subdict),
+                        getter=getter)
+    
+    def _score(self, subdict):
+        return int(subdict['good'])/(int(subdict['bad']) or 1)*int(subdict['downloaded'])

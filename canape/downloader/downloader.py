@@ -20,6 +20,8 @@
 import os
 import pkgutil
 import logging
+from os.path import expanduser
+
 
 from canape.exceptions import CanapeException
 from canape.downloader.torrent import TorrentDownloader
@@ -32,6 +34,7 @@ class Downloader(object):
     
     def __init__(self, config, used=None):
         """ Load all search class"""
+        self.config = config
         path = os.path.dirname(__file__) + '/adapters'
         self.sources_package = self._load_downloaders(path, used)
         
@@ -52,6 +55,11 @@ class Downloader(object):
     
     def addVideo(self, videoObj):
         self.torrent_downloaders[0].addTorrent(videoObj)
+    
+    def addSubtitle(self, subtitleObj):
+        destname = expanduser(self.config['download_dir'])+'/'+subtitleObj.name+'.str'
+        with open(destname, 'w') as f:
+            f.write(subtitleObj.getFile().read())
     
     def _load_downloaders(self, path, used=None):
         loaded = []

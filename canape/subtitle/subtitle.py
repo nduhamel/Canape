@@ -1,5 +1,5 @@
 #encoding:utf-8
-#       exceptions.py
+#       subtitle/subtitle.py
 #       
 #       Copyright 2011 nicolas <nicolas@jombi.fr>
 #       
@@ -17,15 +17,32 @@
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
+import urllib
 
-class CanapeException(Exception):
-    def __init__(self, msg):
-        self.msg = msg
+class Subtitle(object):
+    
+    def __init__(self, name, download_url=None,
+                keywords=None, sourcescore=None, getter=None):
+        """
+        * keywords must be a list of string
+        * sourcescore must be a numeric type
+        * getter must be a callable, that return the subtitle file object
+        """
+        if download_url is None and not callable(getter):
+            raise AttributeError()
+        
+        self.name = name
+        self.download_url = download_url
+        self.getter = getter
+        self.keywords = keywords or []
+        self.sourcescore = sourcescore or 1
+    
     def __str__(self):
-        return self.msg
-
-class InvalidConfig(CanapeException):
-    pass
-
-class UnexceptedContent(CanapeException):
-    pass
+        return self.name
+    
+    def getFile(self):
+        """ Return the subtitle file object """
+        if self.getter is not None:
+            return self.getter(self)
+        else:
+            return urllib.urlopen(self.download_url)

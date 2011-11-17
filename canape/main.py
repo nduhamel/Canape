@@ -35,17 +35,17 @@ from canape.subtitle import Searcher as Subtitle
 from canape.information import Searcher as Information
 from canape.config import CanapeConfig
 from canape.xmldb import Canapedb
-from canape.chooser import VideoChooser
+from canape.chooser import VideoChooser, SubtitleChooser
 from canape.downloader.downloader import Downloader
 
-logger = logging.getLogger(__name__)
-    
+LOGGER = logging.getLogger(__name__)
+
 class Canape(object):
     
     def __init__(self):
         
         self.config = CanapeConfig()
-        self.db = Canapedb('testdb.xml')
+        self.db = Canapedb(self.config['VIDEOS_DB'])
         
         #Load searcher object
         self.video = Video(self.config['sources'].as_list('video'))
@@ -53,7 +53,8 @@ class Canape(object):
         self.information = Information(self.config['sources']['information'])
         
         #Load chooser object
-        self.videochooser = VideoChooser('qualities.xml')
+        self.videochooser = VideoChooser(self.config['QUALITIES_DB'])
+        self.subtitlechooser = SubtitleChooser()
         
         #Load downloader object
         self.downloader = Downloader(config=self.config.get('downloader', {}))
@@ -65,14 +66,14 @@ class Canape(object):
             todownload.extend( self.getEpisodeToProcess(lastep['name'], 
                                 lastep['snum'], lastep['enum']) 
                             )
-        #Second step
-        downloads = []
-        for ep in todownload:
-            downloads.append(self.getEpisodeDownload(ep[0], ep[1], ep[2], '720p'))
-            
-        for video in downloads:
-            self.downloader.addVideo(video)
         
+        for ep in todownload:
+            quality = self.config['tvshow']['default_quality']
+            video = self.getEpisodeDownload(ep[0], ep[1], ep[2], quality)
+            #~ self.downloader.addVideo(video)
+            lang = self.config['tvshow']['subtitles']
+            subtitle = self.getEpisodeSubtitles(ep[0], ep[1], ep[2], lang, video)
+            self.downloader.addSubtitle(subtitle)
         
     
     def getEpisodeToProcess(self, showname, lastep_snum, lastep_enum):
@@ -87,7 +88,7 @@ class Canape(object):
             airdate = self.information.get_airdate(showname, lastep_snum, ep)
             if airdate <= datetime.date.today():
                 todownload.append( (showname, lastep_snum, ep) )
-        logger.info('For serie: "%s" episodes to download: %s' % (showname, todownload))
+        LOGGER.info('For serie: "%s" episodes to download: %s' % (showname, todownload))
         return todownload
     
     def getEpisodeDownload(self, showname, snum, enum, quality=None):
@@ -97,11 +98,12 @@ class Canape(object):
         vresults = self.video.tvshow_search(showname, snum, enum, quality)
         return self.videochooser.choose(vresults) or None
     
-    def getEpisodeSubtitles(self, videoObj, language):
+    def getEpisodeSubtitles(self, showname, snum, enum, language, videoObj=None):
         """ Third process step: try to retrive episode's subtitles 
         return a subtitleObj or None"""
-        raise NotImplementedError()
-        #~ subresults = self.subtitle.tvshow_search(name, snum, enum, language)
+        subtitles = self.subtitle.tvshow_search(showname, snum, enum, language)
+        return self.subtitlechooser.choose(subtitles, videoObj)
+
 
         
 if __name__ == '__main__':
