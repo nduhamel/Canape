@@ -32,3 +32,10 @@ class Environement(dict):
         self['HOME'] = os.environ['HOME']
         self['CONFIG_HOME'] = os.environ.get('XDG_CONFIG_HOME', self['HOME']+'/.config')
         self['DATA_HOME'] = os.environ.get('XDG_DATA_HOME', self['HOME']+'/.local/share')
+
+class CanapeEnv(Environement):
+    def __init__(self):
+        Environement.__init__(self)
+        self['CANAPE_CONFIG_FILE'] = self['CONFIG_HOME']+'/canape.ini'
+        self['CANAPE_DATA_DIR'] = self['DATA_HOME']+'/canape'
+        
