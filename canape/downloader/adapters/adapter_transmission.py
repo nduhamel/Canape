@@ -21,7 +21,7 @@ import urllib
 import hashlib
 import logging
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 import bencode
 import transmissionrpc
@@ -61,7 +61,7 @@ class Transmission(TorrentDownloader):
         torrents = [torrent.hashString for torrent in self.tc.list().values()]
         
         if torrentHash in torrents:
-            logger.error("Can't add torrent '%s', it's already in downloading" % videoObj.name)
+            LOGGER.error("Can't add torrent '%s', it's already in downloading" % videoObj.name)
         else:
             if self.download_dir is not None:
                 self.tc.add_uri(videoObj.download_url, download_dir=self.download_dir)

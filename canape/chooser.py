@@ -22,7 +22,7 @@ import logging
 from canape.quality import Qualities
 from canape.utils import dice_coefficient
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 class VideoChooser(object):
     

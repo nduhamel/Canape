@@ -1,5 +1,5 @@
 #encoding:utf-8
-#       searcher.py
+#       video/searcher.py
 #       
 #       Copyright 2011 nicolas <nicolas@jombi.fr>
 #       
@@ -23,7 +23,7 @@ import logging
 
 from canape.video.tvshow import TvShowSearcher
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 class Searcher:
     """ Interface to searcher objects """
@@ -45,9 +45,9 @@ class Searcher:
         loaded = []
         for module_loader, name, ispkg in pkgutil.walk_packages(path=[path,]):
             if used_sources == None:
-                logger.debug("All import: %s" % name[8:])
+                LOGGER.debug("All import: %s" % name[8:])
                 loaded.append( module_loader.find_module(name).load_module(name) )
             elif name[8:] in used_sources:
-                logger.debug("Import specified source: %s" % name[8:])
+                LOGGER.debug("Import specified source: %s" % name[8:])
                 loaded.append( module_loader.find_module(name).load_module(name) )
         return loaded

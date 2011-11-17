@@ -17,25 +17,15 @@
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
-
 from canape.utils import PluginMount
 
 class TvShowSubtitle:
     """ Base object for tvshow subtitle search web site API
     
-    A TvShowSubtitle object must have a search(tvshow, snum, enum) 
-    function that return a list of subtitle dicts with this key:
-    * name (str)
-    * uploaded_date (datetime)
-    * download_url (str)
-    And this optional keys:
-    * downloaded_count (int)
-    * score (int) between 0 and 10
-    * rip (str)
-    * release (str)
-
+    A TvShowSubtitle object must have a search(tvshow, snum, enum, language) 
+    function that return a list of subtitle objects
     """
     __metaclass__ = PluginMount
     
-    def search(self, tvshow, snum, enum):
+    def search(self, tvshow, snum, enum, language):
         raise NotImplementedError()

@@ -23,7 +23,7 @@ import logging
 
 from canape.information.tvshow import TvShow
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 class Searcher:
     """ Interface to informations searcher objects 
@@ -58,9 +58,9 @@ class Searcher:
         loaded = []
         for module_loader, name, ispkg in pkgutil.walk_packages(path=[path,]):
             if used_source == None:
-                logger.debug("All import: %s" % name[8:])
+                LOGGER.debug("All import: %s" % name[8:])
                 loaded.append( module_loader.find_module(name).load_module(name) )
             elif name[8:] == used_source:
-                logger.debug("Import specified source: %s" % name[8:])
+                LOGGER.debug("Import specified source: %s" % name[8:])
                 loaded.append( module_loader.find_module(name).load_module(name) )
         return loaded

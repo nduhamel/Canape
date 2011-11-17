@@ -1,5 +1,5 @@
 #encoding:utf-8
-#       tpb.py
+#       adapter_tpb.py
 #       
 #       Copyright 2011 nicolas <nicolas@jombi.fr>
 #       
@@ -24,7 +24,7 @@ import pytpb
 from canape.video import tvshow
 from canape.video.video import Video
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 class ThePirateBay(tvshow.TvShowSearcher):
     """ Adaptater for pytpb the python API for The Pirate Bay"""
@@ -47,7 +47,7 @@ class ThePirateBay(tvshow.TvShowSearcher):
         
         if quality:
             term = term + ' ' + quality
-        logger.info("Search for '%s' in cat: %s" % (term, cat))
+        LOGGER.info("Search for '%s' in cat: %s" % (term, cat))
         results = []
         for r in self.tpb.search(term, cat):
             results.append( self._process(r) )

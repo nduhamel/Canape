@@ -23,7 +23,7 @@ import logging
 
 from canape.subtitle.tvshow import TvShowSubtitle
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 
 class Searcher(object):
@@ -47,10 +47,10 @@ class Searcher(object):
         loaded = []
         for module_loader, name, ispkg in pkgutil.walk_packages(path=[path,]):
             if used_sources == None:
-                logger.debug("All import: %s" % name[8:])
+                LOGGER.debug("All import: %s" % name[8:])
                 loaded.append( module_loader.find_module(name).load_module(name) )
             elif name[8:] in used_sources:
-                logger.debug("Import specified source: %s" % name[8:])
+                LOGGER.debug("Import specified source: %s" % name[8:])
                 loaded.append( module_loader.find_module(name).load_module(name) )
         return loaded
 

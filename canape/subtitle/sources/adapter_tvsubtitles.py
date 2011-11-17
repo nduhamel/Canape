@@ -1,5 +1,5 @@
 #encoding:utf-8
-#       subtitle/sources/tvsubtitles.py
+#       adapter_tvsubtitles.py
 #       
 #       Copyright 2011 nicolas <nicolas@jombi.fr>
 #       

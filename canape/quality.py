@@ -17,7 +17,6 @@
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
-# http://filesharingtalk.com/threads/311830-The-Official-Scene-Dictionary
 import tempfile
 import shutil
 import os
@@ -28,7 +27,7 @@ from lxml import etree
 
 from canape.utils import synchronized
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 LOCK = Lock()
 
 class Quality(object):
@@ -174,7 +173,7 @@ class Qualitiesdb(object):
             for child in elem.iterchildren():
                 if child.tag == 'label' and child.text == label:
                     self.tmpfound = True
-                    logger.debug('Remove %s' % label)
+                    LOGGER.debug('Remove %s' % label)
                     break
             if not self.tmpfound:
                 tmp_file.write( etree.tostring(elem,pretty_print=False))
@@ -185,7 +184,7 @@ class Qualitiesdb(object):
             tmp_file.close()
             shutil.move(tmp_file.name, self.xmlfile)
         else:
-            logger.error("Can't remove %s because it don't exist in db" % name)
+            LOGGER.error("Can't remove %s because it don't exist in db" % name)
             tmp_file.close()
             os.remove(tmp_file.name)
         

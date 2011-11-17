@@ -24,7 +24,7 @@ import logging
 from canape.exceptions import CanapeException
 from canape.downloader.torrent import TorrentDownloader
 
-logger = logging.getLogger(__name__)
+LOGGER = logging.getLogger(__name__)
 
 class Downloader(object):
     """ Interface to downloader objects 
@@ -44,12 +44,12 @@ class Downloader(object):
                 else:
                     self.torrent_downloaders.append(d())
             except CanapeException as e:
-                logger.error("Adapter:%s Error:%s" %(d.name,e))
+                LOGGER.error("Adapter:%s Error:%s" %(d.name,e))
                 
         if len(self.torrent_downloaders):
-            logger.debug("Available torrent downloaders: %s" % self.torrent_downloaders)
+            LOGGER.debug("Available torrent downloaders: %s" % self.torrent_downloaders)
         else:
-            logger.error('No available torrent downloaders')
+            LOGGER.error('No available torrent downloaders')
     
     def addVideo(self, videoObj):
         self.torrent_downloaders[0].addTorrent(videoObj)
@@ -63,9 +63,9 @@ class Downloader(object):
         loaded = []
         for module_loader, name, ispkg in pkgutil.walk_packages(path=[path,]):
             if used == None:
-                logger.debug("All import: %s" % name[8:])
+                LOGGER.debug("All import: %s" % name[8:])
                 loaded.append( module_loader.find_module(name).load_module(name) )
             elif name[8:] in used:
-                logger.debug("Import specified downloader: %s" % name[8:])
+                LOGGER.debug("Import specified downloader: %s" % name[8:])
                 loaded.append( module_loader.find_module(name).load_module(name) )
         return loaded

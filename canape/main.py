@@ -36,7 +36,7 @@ from canape.information import Searcher as Information
 from canape.config import CanapeConfig
 from canape.xmldb import Canapedb
 from canape.chooser import VideoChooser, SubtitleChooser
-from canape.downloader.downloader import Downloader
+from canape.downloader import Downloader
 
 LOGGER = logging.getLogger(__name__)
 
