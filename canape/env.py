@@ -18,6 +18,14 @@
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
 import os
+import shutil
+
+def package_path():
+    """Borrowed from wxglade.py"""
+    root = __file__
+    if os.path.islink (root):
+        root = os.path.realpath (root)
+    return os.path.dirname (os.path.abspath (root))
 
 class Environement(dict):
     """ A proxy object for user env 
@@ -38,4 +46,15 @@ class CanapeEnv(Environement):
         Environement.__init__(self)
         self['CANAPE_CONFIG_FILE'] = self['CONFIG_HOME']+'/canape.ini'
         self['CANAPE_DATA_DIR'] = self['DATA_HOME']+'/canape'
+        self['CANAPE_DIR'] = package_path()
         
+        # Test if CANAPE_CONFIG_FILE and CANAPE_DATA_DIR exist
+        # if not create them
+        if not os.path.isfile(self['CANAPE_CONFIG_FILE']):
+            shutil.copy(self['CANAPE_DIR']+'/data/canape.ini',self['CONFIG_HOME'])
+        if not os.path.isdir(self['CANAPE_DATA_DIR']):
+            os.mkdir(self['CANAPE_DATA_DIR'])
+        if not os.path.isfile(self['CANAPE_DATA_DIR']+'/qualities.xml'):
+            shutil.copy(self['CANAPE_DIR']+'/data/qualities.xml',self['CANAPE_DATA_DIR'])
+        if not os.path.isfile(self['CANAPE_DATA_DIR']+'/videos.xml'):
+            shutil.copy(self['CANAPE_DIR']+'/data/videos.xml',self['CANAPE_DATA_DIR'])

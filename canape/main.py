@@ -103,11 +103,3 @@ class Canape(object):
         return a subtitleObj or None"""
         subtitles = self.subtitle.tvshow_search(showname, snum, enum, language)
         return self.subtitlechooser.choose(subtitles, videoObj)
-
-
-        
-if __name__ == '__main__':
-    logging.basicConfig(level = logging.DEBUG)
-    canape = Canape()
-    canape.run()
-

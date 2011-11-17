@@ -1,0 +1,31 @@
+<qualities>
+<quality>
+        <label>720p</label>
+        <size min="1000000000" max="3000000000"/>
+        <extensions>
+            <ext>mkv</ext>
+        </extensions>
+        <keywords>
+            <keyword>720p</keyword>
+        </keywords>
+        <extras>
+            <extra>HDTV</extra>
+            <extra>WEB-DL</extra>
+            <extra>x264</extra>
+            <extra>H.264</extra>
+        </extras>
+    </quality>
+    <quality>
+        <label>XviD</label>
+        <size min="300000000" max="800000000"/>
+        <extensions>
+            <ext>avi</ext>
+        </extensions>
+        <keywords>
+            <keyword>XviD</keyword>
+        </keywords>
+        <extras>
+            <extra>HDTV</extra>
+        </extras>
+    </quality>
+</qualities>
