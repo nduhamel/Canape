@@ -70,7 +70,7 @@ class Canape(object):
         for ep in todownload:
             quality = self.config['tvshow']['default_quality']
             video = self.getEpisodeDownload(ep[0], ep[1], ep[2], quality)
-            #~ self.downloader.addVideo(video)
+            self.downloader.addVideo(video)
             lang = self.config['tvshow']['subtitles']
             subtitle = self.getEpisodeSubtitles(ep[0], ep[1], ep[2], lang, video)
             self.downloader.addSubtitle(subtitle)

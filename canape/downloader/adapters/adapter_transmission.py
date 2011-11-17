@@ -33,7 +33,9 @@ from canape.downloader.exceptions import RemoteSoftwareUnavailable
 class Transmission(TorrentDownloader):
     name = 'transmission'
     
-    def __init__(self, address=None, port=None, user=None, password=None):
+    def __init__(self, address=None, port=None, user=None, password=None, download_dir=None):
+        
+        self.download_dir = download_dir
         
         #Fallback to default
         address = address or 'localhost'
@@ -61,7 +63,10 @@ class Transmission(TorrentDownloader):
         if torrentHash in torrents:
             logger.error("Can't add torrent '%s', it's already in downloading" % videoObj.name)
         else:
-            self.tc.add_uri(videoObj.download_url)
+            if self.download_dir is not None:
+                self.tc.add_uri(videoObj.download_url, download_dir=self.download_dir)
+            else:
+                self.tc.add_uri(videoObj.download_url)
 
 
 if __name__ == '__main__':

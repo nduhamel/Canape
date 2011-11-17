@@ -20,8 +20,6 @@
 import os
 import pkgutil
 import logging
-from os.path import expanduser
-
 
 from canape.exceptions import CanapeException
 from canape.downloader.torrent import TorrentDownloader
@@ -41,8 +39,8 @@ class Downloader(object):
         self.torrent_downloaders=[]
         for d in TorrentDownloader.plugins:
             try:
-                if d.name in config.keys():
-                    self.torrent_downloaders.append( d(**config[d.name]) )
+                if d.name in config['adapters'].keys():
+                    self.torrent_downloaders.append( d(**config['adapters'][d.name]) )
                 else:
                     self.torrent_downloaders.append(d())
             except CanapeException as e:
@@ -57,7 +55,7 @@ class Downloader(object):
         self.torrent_downloaders[0].addTorrent(videoObj)
     
     def addSubtitle(self, subtitleObj):
-        destname = expanduser(self.config['download_dir'])+'/'+subtitleObj.name+'.str'
+        destname = self.config['download_dir']+'/'+subtitleObj.name+'.str'
         with open(destname, 'w') as f:
             f.write(subtitleObj.getFile().read())
     

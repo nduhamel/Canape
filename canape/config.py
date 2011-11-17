@@ -17,6 +17,8 @@
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
+from os.path import expanduser
+
 from configobj import ConfigObj
 
 import canape.env
@@ -30,3 +32,10 @@ class CanapeConfig(ConfigObj):
                             )
         self['VIDEOS_DB'] = self.env['CANAPE_DATA_DIR']+'/videos.xml'
         self['QUALITIES_DB'] = self.env['CANAPE_DATA_DIR']+'/qualities.xml'
+        
+        #download_dir
+        #Expenduser
+        self['downloader']['download_dir'] = expanduser(self['downloader']['download_dir'])
+        #Add download_dir to all downloader adapter config
+        for adpatername in self['downloader']['adapters']:
+            self['downloader']['adapters'][adpatername]['download_dir'] = self['downloader']['download_dir']
