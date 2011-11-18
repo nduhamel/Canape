@@ -37,6 +37,7 @@ for dirpath, dirnames, filenames in os.walk(canape_dir):
 ## End find packages helper from django
 print data_files
 setup(name='canape',
+      version='0.0.2a',
       description='a tvshow downloader',
       url='https://github.com/nduhamel/canape',
       packages = packages,
@@ -47,4 +48,9 @@ setup(name='canape',
           'Programming Language :: Python',
           'Operating System :: OS Independent'
       ]
+      requires=['python-tvrage',
+                'configobj',
+                'transmissionrpc',
+                'bencode',
+                'python-daemon']
      )

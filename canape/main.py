@@ -26,6 +26,7 @@ dep:
  configobj      
  transmissionrpc    http://packages.python.org/transmissionrpc/
  bencode            http://pypi.python.org/pypi/bencode/  for .torrent decode
+ python-daemon      http://pypi.python.org/pypi/python-daemon
 """
 import logging
 import datetime
@@ -67,6 +68,7 @@ class Canape(object):
             time.sleep(t*60)
             
     def check(self):
+        LOGGER.info("Start checking")
         todownload = []
         #First step
         for lastep in self.db.get_series():
