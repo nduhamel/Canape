@@ -47,10 +47,12 @@ setup(name='canape',
           'Intended Audience :: Developers',
           'Programming Language :: Python',
           'Operating System :: OS Independent'
-      ]
-      requires=['python-tvrage',
-                'configobj',
-                'transmissionrpc',
-                'bencode',
-                'python-daemon']
+      ],
+      install_requires=["python-tvrage",
+                "configobj",
+                "transmissionrpc",
+                "bencode",
+                "python-daemon",
+                "pytpb",
+                "tvsubtitles_api"]
      )

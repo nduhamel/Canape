@@ -19,7 +19,7 @@
 #       MA 02110-1301, USA.
 import logging
 
-import pytpb
+import pytpb.pytpb
 
 from canape.video import tvshow
 from canape.video.video import Video
@@ -36,7 +36,7 @@ class ThePirateBay(tvshow.TvShowSearcher):
     }
     
     def __init__(self):
-        self.tpb = pytpb.ThePirateBay()
+        self.tpb = pytpb.pytpb.ThePirateBay()
     
     def tvshow_search(self, showname, snum, enum, quality=None):
         cat = self.cat_tvshow.get(quality, None)
