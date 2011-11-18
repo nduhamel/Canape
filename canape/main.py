@@ -29,6 +29,7 @@ dep:
 """
 import logging
 import datetime
+import time
 
 from canape.video import Searcher as Video
 from canape.subtitle import Searcher as Subtitle
@@ -58,7 +59,13 @@ class Canape(object):
         
         #Load downloader object
         self.downloader = Downloader(config=self.config.get('downloader', {}))
-    
+        
+    def daemon_run(self):
+        while True:
+            self.check()
+            t = self.config['tvshow'].as_int('check_interval')
+            time.sleep(t*60)
+            
     def check(self):
         todownload = []
         #First step
