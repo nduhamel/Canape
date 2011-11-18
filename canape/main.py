@@ -59,7 +59,7 @@ class Canape(object):
         #Load downloader object
         self.downloader = Downloader(config=self.config.get('downloader', {}))
     
-    def run(self):
+    def check(self):
         todownload = []
         #First step
         for lastep in self.db.get_series():
