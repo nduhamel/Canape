@@ -1,18 +1,18 @@
 #encoding:utf-8
 #       downloader/downloader.py
-#       
+#
 #       Copyright 2011 nicolas <nicolas@jombi.fr>
-#       
+#
 #       This program is free software; you can redistribute it and/or modify
 #       it under the terms of the GNU General Public License as published by
 #       the Free Software Foundation; either version 2 of the License, or
 #       (at your option) any later version.
-#       
+#
 #       This program is distributed in the hope that it will be useful,
 #       but WITHOUT ANY WARRANTY; without even the implied warranty of
 #       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #       GNU General Public License for more details.
-#       
+#
 #       You should have received a copy of the GNU General Public License
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -23,19 +23,20 @@ import logging
 
 from canape.exceptions import CanapeException
 from canape.downloader.torrent import TorrentDownloader
+from canape.downloader.downloadqueue import DownloadQueue
 
 LOGGER = logging.getLogger(__name__)
 
 class Downloader(object):
-    """ Interface to downloader objects 
+    """ Interface to downloader objects
     """
-    
+
     def __init__(self, config, used=None):
         """ Load all search class"""
         self.config = config
         path = os.path.dirname(__file__) + '/adapters'
         self.sources_package = self._load_downloaders(path, used)
-        
+        self.queue = DownloadQueue(self.config['DOWNLOADS_DB'])
         self.torrent_downloaders=[]
         for d in TorrentDownloader.plugins:
             try:
@@ -45,20 +46,30 @@ class Downloader(object):
                     self.torrent_downloaders.append(d())
             except CanapeException as e:
                 LOGGER.error("Adapter:%s Error:%s" %(d.name,e))
-                
+
         if len(self.torrent_downloaders):
             LOGGER.debug("Available torrent downloaders: %s" % self.torrent_downloaders)
         else:
             LOGGER.error('No available torrent downloaders')
-    
+
     def addVideo(self, videoObj):
-        self.torrent_downloaders[0].addTorrent(videoObj)
-    
+        if videoObj.vtype == 'torrent':
+            self._add_torrent(videoObj)
+        else:
+            raise TypeError()
+
+    def _add_torrent(self, videoObj):
+        if len(self.torrent_downloaders):
+            self.torrent_downloaders[0].addTorrent(videoObj)
+        else:
+            LOGGER.warning('No available downloader, put in queue')
+            self.queue.append(videoObj)
+
     def addSubtitle(self, subtitleObj):
         destname = self.config['download_dir']+'/'+subtitleObj.name+'.str'
         with open(destname, 'w') as f:
             f.write(subtitleObj.getFile().read())
-    
+
     def _load_downloaders(self, path, used=None):
         loaded = []
         for module_loader, name, ispkg in pkgutil.walk_packages(path=[path,]):
