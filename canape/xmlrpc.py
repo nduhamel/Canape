@@ -1,5 +1,5 @@
 #encoding:utf-8
-#       downloader/torrent.py
+#       xmlrpc.py
 #       
 #       Copyright 2011 nicolas <nicolas@jombi.fr>
 #       
@@ -17,12 +17,4 @@
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
-from canape.utils import PluginMount
 
-class TorrentDownloader:
-    """ Base object for torrent downloader """
-    __metaclass__ = PluginMount
-    
-    def addTorrent(self, videoObj):
-        raise NotImplementedError()
-    

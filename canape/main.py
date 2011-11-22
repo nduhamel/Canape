@@ -1,18 +1,18 @@
 #encoding:utf-8
 #       main.py
-#       
+#
 #       Copyright 2011 nicolas <nicolas@jombi.fr>
-#       
+#
 #       This program is free software; you can redistribute it and/or modify
 #       it under the terms of the GNU General Public License as published by
 #       the Free Software Foundation; either version 2 of the License, or
 #       (at your option) any later version.
-#       
+#
 #       This program is distributed in the hope that it will be useful,
 #       but WITHOUT ANY WARRANTY; without even the implied warranty of
 #       MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #       GNU General Public License for more details.
-#       
+#
 #       You should have received a copy of the GNU General Public License
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
@@ -23,7 +23,7 @@ dep:
  python-tvrage      http://pypi.python.org/pypi/python-tvrage/
  pytpb              https://github.com/nduhamel/pytpb
  tvsubtitles_api    https://github.com/nduhamel/tvsubtitles_api
- configobj      
+ configobj
  transmissionrpc    http://packages.python.org/transmissionrpc/
  bencode            http://pypi.python.org/pypi/bencode/  for .torrent decode
  python-daemon      http://pypi.python.org/pypi/python-daemon
@@ -39,76 +39,95 @@ from canape.config import CanapeConfig
 from canape.xmldb import Canapedb
 from canape.chooser import VideoChooser, SubtitleChooser
 from canape.downloader import Downloader
+from canape.object import Episode
 
 LOGGER = logging.getLogger(__name__)
 
 class Canape(object):
-    
+
     def __init__(self):
-        
+
         self.config = CanapeConfig()
         self.db = Canapedb(self.config['VIDEOS_DB'])
-        
+
         #Load searcher object
         self.video = Video(self.config['sources'].as_list('video'))
         self.subtitle = Subtitle(self.config['sources'].as_list('subtitle'))
         self.information = Information(self.config['sources']['information'])
-        
+
         #Load chooser object
         self.videochooser = VideoChooser(self.config['QUALITIES_DB'])
         self.subtitlechooser = SubtitleChooser()
-        
+
         #Load downloader object
         self.downloader = Downloader(config=self.config.get('downloader', {}))
-        
+
     def daemon_run(self):
         while True:
             self.check()
             t = self.config['tvshow'].as_int('check_interval')
             time.sleep(t*60)
-            
+
     def check(self):
         LOGGER.info("Start checking")
-        todownload = []
-        #First step
-        for lastep in self.db.get_series():
-            todownload.extend( self.getEpisodeToProcess(lastep['name'], 
-                                lastep['snum'], lastep['enum']) 
-                            )
-        
-        for ep in todownload:
-            quality = self.config['tvshow']['default_quality']
-            video = self.getEpisodeDownload(ep[0], ep[1], ep[2], quality)
-            self.downloader.addVideo(video)
-            lang = self.config['tvshow']['subtitles']
-            subtitle = self.getEpisodeSubtitles(ep[0], ep[1], ep[2], lang, video)
-            self.downloader.addSubtitle(subtitle)
-        
-    
-    def getEpisodeToProcess(self, showname, lastep_snum, lastep_enum):
+
+        for serie in self.db.get_series():
+            serie = self.updateEpisodes(serie)
+            updated_episodes = []
+            for episode in serie.episodes:
+
+                if episode.is_downloading():
+                    LOGGER.debug("Episode downloading check that...")
+                else:
+                    video = self.getEpisodeDownload(serie.name, episode, serie.quality)
+                    video.id_ = "%sS%sE%s" % (serie.id_, episode.snum, episode.enum)
+                    self.downloader.addVideo(video)
+                    episode.set_downloading()
+
+                if not episode.subtitle_downloaded():
+                    subtitle = self.getEpisodeSubtitles(serie, episode, video)
+                    self.downloader.addSubtitle(subtitle)
+                    episode.set_subtitle_downloaded()
+
+                updated_episodes.append(episode)
+
+            serie.episodes = updated_episodes
+            self.db.update_serie(serie)
+
+    def updateEpisodes(self, serieObj):
         """ First process step:
-        return a list of episode tuple (showname, snum, enum) to download
-        
+        take a serieObj and return an update serieObj with new episodes
+
         Get information by self.information and test airdate
+        TODO need to check next season
         """
-        todownload = []
-        ep= self.information.get_episodes(showname, lastep_snum)
-        for ep in ep[lastep_enum:]:
-            airdate = self.information.get_airdate(showname, lastep_snum, ep)
+        #First check serie's id of serieObj
+        if serieObj.id_ is None:
+            serieObj.id_ = self.information.get_serie_id(serieObj.name)
+
+        lastest_ep = serieObj.episodes[-1]
+        season_episodes= self.information.get_episodes(serieObj.name, lastest_ep.snum)
+        for enum in season_episodes[lastest_ep.enum:]:
+            airdate = self.information.get_airdate(serieObj.name, lastest_ep.snum, enum)
             if airdate <= datetime.date.today():
-                todownload.append( (showname, lastep_snum, ep) )
-        LOGGER.info('For serie: "%s" episodes to download: %s' % (showname, todownload))
-        return todownload
-    
-    def getEpisodeDownload(self, showname, snum, enum, quality=None):
-        """ Second process step: try to retrive download link for an 
-        episode, return a Video object (canape.video.video.Video) or 
+                serieObj.episodes.append( Episode(lastest_ep.snum, enum) )
+        serieObj.sort()
+        return serieObj
+
+    def getEpisodeDownload(self, showname, episodeObj,quality=None):
+        """ Second process step: try to retrive download link for an
+        episode, return a Video object (canape.video.video.Video) or
         None """
-        vresults = self.video.tvshow_search(showname, snum, enum, quality)
+        vresults = self.video.tvshow_search(showname, episodeObj.snum, episodeObj.enum, quality)
         return self.videochooser.choose(vresults) or None
-    
-    def getEpisodeSubtitles(self, showname, snum, enum, language, videoObj=None):
-        """ Third process step: try to retrive episode's subtitles 
+
+    def getEpisodeSubtitles(self, serieObj, episodeObj, videoObj=None):
+        """ Third process step: try to retrive episode's subtitles
         return a subtitleObj or None"""
-        subtitles = self.subtitle.tvshow_search(showname, snum, enum, language)
+        if serieObj.subtitle is None:
+            lang = self.config['tvshow']['subtitles']
+        else:
+            lang = serieObj.subtitle
+
+        subtitles = self.subtitle.tvshow_search(serieObj.name, episodeObj.snum, episodeObj.enum, lang)
         return self.subtitlechooser.choose(subtitles, videoObj)
