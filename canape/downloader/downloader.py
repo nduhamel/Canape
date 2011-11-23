@@ -24,6 +24,7 @@ import logging
 from canape.exceptions import CanapeException
 from canape.downloader.torrent import TorrentDownloader
 from canape.downloader.downloadqueue import DownloadQueue
+from canape.downloader.exceptions import UnknownDownload
 
 LOGGER = logging.getLogger(__name__)
 
@@ -35,18 +36,10 @@ class Downloader(object):
         """ Load all search class"""
         self.config = config
         path = os.path.dirname(__file__) + '/adapters'
-        self.sources_package = self._load_downloaders(path, used)
+        self.sources_package = self._load_downloader_modules(path, used)
         self.queue = DownloadQueue(self.config['DOWNLOADS_DB'])
         self.torrent_downloaders=[]
-        for d in TorrentDownloader.plugins:
-            try:
-                if d.name in config['adapters'].keys():
-                    self.torrent_downloaders.append( d(**config['adapters'][d.name]) )
-                else:
-                    self.torrent_downloaders.append(d())
-            except CanapeException as e:
-                LOGGER.error("Adapter:%s Error:%s" %(d.name,e))
-
+        self._load_torrent_downloaders()
         if len(self.torrent_downloaders):
             LOGGER.debug("Available torrent downloaders: %s" % self.torrent_downloaders)
         else:
@@ -58,9 +51,41 @@ class Downloader(object):
         else:
             raise TypeError()
 
+    def check(self):
+        """ Used for check downloader and retry to download """
+        if len(self.torrent_downloaders) == 0:
+            self._load_torrent_downloaders
+
+        if len(self.torrent_downloaders):
+            try:
+                while True:
+                    download = self.queue.pop()
+                    LOGGER.info("Start download of: %s" % download.name)
+                    self.addVideo(download)
+            except IndexError:
+                pass
+
+    def is_finished(self, videoid):
+        """ check if a video is downloading """
+        for download in self.queue:
+            if download.extra['state'] == self.queue.WAITING:
+                return False
+            if download.id_ == videoid:
+                isfinished = False
+                try:
+                    isfinished = self.torrent_downloaders[0].is_finished(download.extra['downloader_id'])
+                except UnknownDownload:
+                    self.queue.remove(download.id_)
+                    LOGGER.error("Download %s unknown delete it from queue" % download.name)
+                    raise
+                return isfinished
+        raise UnknownDownload("Downloader have no trace of this download")
+
     def _add_torrent(self, videoObj):
         if len(self.torrent_downloaders):
-            self.torrent_downloaders[0].addTorrent(videoObj)
+            id_ = self.torrent_downloaders[0].addTorrent(videoObj)
+            videoObj.extra['downloader_id'] = id_
+            self.queue.append(videoObj, self.queue.STARTED)
         else:
             LOGGER.warning('No available downloader, put in queue')
             self.queue.append(videoObj)
@@ -70,7 +95,7 @@ class Downloader(object):
         with open(destname, 'w') as f:
             f.write(subtitleObj.getFile().read())
 
-    def _load_downloaders(self, path, used=None):
+    def _load_downloader_modules(self, path, used=None):
         loaded = []
         for module_loader, name, ispkg in pkgutil.walk_packages(path=[path,]):
             if used == None:
@@ -80,3 +105,14 @@ class Downloader(object):
                 LOGGER.debug("Import specified downloader: %s" % name[8:])
                 loaded.append( module_loader.find_module(name).load_module(name) )
         return loaded
+
+    def _load_torrent_downloaders(self):
+        """ Load torrent downloaders """
+        for d in TorrentDownloader.plugins:
+            try:
+                if d.name in self.config['adapters'].keys():
+                    self.torrent_downloaders.append( d(**self.config['adapters'][d.name]) )
+                else:
+                    self.torrent_downloaders.append(d())
+            except CanapeException as e:
+                LOGGER.error("Adapter:%s Error:%s" %(d.name,e))

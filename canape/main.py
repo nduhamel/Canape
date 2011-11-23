@@ -39,6 +39,7 @@ from canape.config import CanapeConfig
 from canape.xmldb import Canapedb
 from canape.chooser import VideoChooser, SubtitleChooser
 from canape.downloader import Downloader
+from canape.downloader.exceptions import UnknownDownload
 from canape.object import Episode
 
 LOGGER = logging.getLogger(__name__)
@@ -71,6 +72,8 @@ class Canape(object):
     def check(self):
         LOGGER.info("Start checking")
 
+        self.downloader.check()
+
         for serie in self.db.get_series():
             serie = self.updateEpisodes(serie)
             updated_episodes = []
@@ -78,7 +81,18 @@ class Canape(object):
 
                 if episode.is_downloading():
                     LOGGER.debug("Episode downloading check that...")
-                else:
+                    id_ =  "%sS%sE%s" % (serie.id_, episode.snum, episode.enum)
+                    isfinished=False
+                    try:
+                        isfinished = self.downloader.is_finished(id_)
+                    except UnknownDownload:
+                        LOGGER.error("Episode %sS%sE%s unknown from downloader guess it's downloaded" % (serie.name, episode.snum, episode.enum))
+                        episode.set_downloaded()
+                    if isfinished:
+                        LOGGER.debug("Episode downloaded!")
+                        episode.set_downloaded()
+
+                elif not episode.is_downloaded():
                     video = self.getEpisodeDownload(serie.name, episode, serie.quality)
                     video.id_ = "%sS%sE%s" % (serie.id_, episode.snum, episode.enum)
                     self.downloader.addVideo(video)

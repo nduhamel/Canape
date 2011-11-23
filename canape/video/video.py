@@ -22,7 +22,7 @@ from lxml import etree
 class Video(object):
 
     def __init__(self, vtype, name, download_url,
-                size=None, date=None, sourcescore=None, id_=None):
+                size=None, date=None, sourcescore=None, id_=None, **kwarg):
         """
         * type must be 'torrent' or 'directlink'
         * size must be an int in octet
@@ -37,18 +37,21 @@ class Video(object):
         self.date = date
         self.sourcescore = sourcescore or 1
         self.id_ = id_
+        self.extra = kwarg
 
     def __str__(self):
         return self.name
 
     def __repr__(self):
-        extra = {}
+        extra = self.extra
         if self.size is not None:
-            extra['size'] = str(self.size)
+            extra['size'] = self.size
         if self.date is not None:
             extra['date'] = self.date.strftime("%Y-%m-%d %H:%M")
         if self.id_ is not None:
             extra['id_'] = self.id_
+
+        extra = dict([(key, str(val)) for key, val in extra.iteritems()])
 
         video = etree.Element("video", name=self.name,
                              vtype=self.vtype,

@@ -56,8 +56,14 @@ class Episode(object):
     def set_downloading(self):
         self.state = self.state | self.VIDEO_DOWNLOADING
 
+    def set_downloaded(self):
+        self.state = self.state | self.VIDEO_DOWNLOADED
+
     def is_downloading(self):
         return self.state & self.VIDEO_DOWNLOADING and not self.state & self.VIDEO_DOWNLOADED
+
+    def is_downloaded(self):
+        return self.state & self.VIDEO_DOWNLOADING and  self.state & self.VIDEO_DOWNLOADED
 
     def set_subtitle_downloaded(self):
         self.state = self.state | self.SUBTITLE_DOWNLOADED

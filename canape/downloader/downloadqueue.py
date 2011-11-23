@@ -37,11 +37,17 @@ class AlreadyExist(Exception):
 
 class DownloadQueue(object):
 
+    WAITING = 0
+    STARTED = 1
+
     def __init__(self, xmlfile):
         self.xmlfile = xmlfile
 
     @synchronized(LOCK)
-    def append(self, videoObject):
+    def append(self, videoObject, state=None):
+
+        state = state or self.WAITING
+
         tmp_file  = tempfile.NamedTemporaryFile(delete=False)
         tmp_file.write('<downloads>\n')
 
@@ -55,13 +61,17 @@ class DownloadQueue(object):
             os.remove(tmp_file.name)
             raise
         else:
+            videoObject.extra['state'] = str(state)
             tmp_file.write(repr(videoObject))
             tmp_file.write('</downloads>')
             tmp_file.close()
             shutil.move(tmp_file.name, self.xmlfile)
 
     @synchronized(LOCK)
-    def pop(self):
+    def pop(self, filterby=None):
+
+        filterby = filterby or self.WAITING
+
         tmp_found=False
         tmp_file  = tempfile.NamedTemporaryFile(delete=False)
         tmp_file.write('<downloads>\n')
@@ -69,7 +79,7 @@ class DownloadQueue(object):
         first = False
 
         for download in self:
-            if not first:
+            if not first and download.extra['state'] == filterby:
                 first = download
             else:
                 tmp_file.write(repr(download))
@@ -82,24 +92,40 @@ class DownloadQueue(object):
         else:
             tmp_file.close()
             os.remove(tmp_file.name)
+            raise IndexError()
+
+    def remove(self, videoid):
+
+        tmp_found=False
+        tmp_file  = tempfile.NamedTemporaryFile(delete=False)
+        tmp_file.write('<downloads>\n')
+
+        for download in self:
+            if not download.id_ == videoid:
+                tmp_file.write(repr(download))
+
+        tmp_file.write('</downloads>')
+        tmp_file.close()
+        shutil.move(tmp_file.name, self.xmlfile)
 
     @synchronized(LOCK)
     def __iter__(self):
         context = etree.iterparse(self.xmlfile, events=('end',), tag='video')
         for event, elem in context:
-            name = elem.attrib['name']
-            vtype = elem.attrib['vtype']
-            download_url = elem.attrib['download_url']
-            size = elem.attrib.get('size', None)
-            date = elem.attrib.get('date', None)
-            id_ = elem.attrib.get('id_', None)
+            name = elem.attrib.pop('name')
+            vtype = elem.attrib.pop('vtype')
+            download_url = elem.attrib.pop('download_url')
+            size = elem.attrib.pop('size', None)
+            date = elem.attrib.pop('date', None)
+            id_ = elem.attrib.pop('id_', None)
+            state = int(elem.attrib.pop('state'))
             if size is not None:
                 size = int(size)
             if date is not None:
                 date = datetime.datetime.strptime(date,"%Y-%m-%d %H:%M")
-            sourcescore = float(elem.attrib['sourcescore'])
+            sourcescore = float(elem.attrib.pop('sourcescore'))
             # Create a generator
             yield Video(vtype, name, download_url,
-                        size=size, date=date, sourcescore=sourcescore, id_=id_)
+                        size=size, date=date, sourcescore=sourcescore, id_=id_, state=state, **elem.attrib)
         del context
 
