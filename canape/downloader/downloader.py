@@ -24,7 +24,7 @@ import logging
 from canape.exceptions import CanapeException
 from canape.downloader.torrent import TorrentDownloader
 from canape.downloader.downloadqueue import DownloadQueue
-from canape.downloader.exceptions import UnknownDownload
+from canape.downloader.exceptions import UnknownDownload, AlreadyDownloading
 
 LOGGER = logging.getLogger(__name__)
 
@@ -83,7 +83,11 @@ class Downloader(object):
 
     def _add_torrent(self, videoObj):
         if len(self.torrent_downloaders):
-            id_ = self.torrent_downloaders[0].addTorrent(videoObj)
+            try:
+                id_ = self.torrent_downloaders[0].addTorrent(videoObj)
+            except AlreadyDownloading:
+                LOGGER.error("Download %s already downloading" % videoObj)
+                return
             videoObj.extra['downloader_id'] = id_
             self.queue.append(videoObj, self.queue.STARTED)
         else:

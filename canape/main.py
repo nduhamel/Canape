@@ -41,6 +41,7 @@ from canape.chooser import VideoChooser, SubtitleChooser
 from canape.downloader import Downloader
 from canape.downloader.exceptions import UnknownDownload
 from canape.object import Episode
+from canape.xmlrpc import CanapeXMLRPCServer
 
 LOGGER = logging.getLogger(__name__)
 
@@ -64,6 +65,8 @@ class Canape(object):
         self.downloader = Downloader(config=self.config.get('downloader', {}))
 
     def daemon_run(self):
+        server = CanapeXMLRPCServer()
+        server.start()
         while True:
             self.check()
             t = self.config['tvshow'].as_int('check_interval')
@@ -94,9 +97,10 @@ class Canape(object):
 
                 elif not episode.is_downloaded():
                     video = self.getEpisodeDownload(serie.name, episode, serie.quality)
-                    video.id_ = "%sS%sE%s" % (serie.id_, episode.snum, episode.enum)
-                    self.downloader.addVideo(video)
-                    episode.set_downloading()
+                    if video is not None:
+                        video.id_ = "%sS%sE%s" % (serie.id_, episode.snum, episode.enum)
+                        self.downloader.addVideo(video)
+                        episode.set_downloading()
 
                 if not episode.subtitle_downloaded():
                     subtitle = self.getEpisodeSubtitles(serie, episode, video)
@@ -133,7 +137,10 @@ class Canape(object):
         episode, return a Video object (canape.video.video.Video) or
         None """
         vresults = self.video.tvshow_search(showname, episodeObj.snum, episodeObj.enum, quality)
-        return self.videochooser.choose(vresults) or None
+        if len(vresults):
+            return self.videochooser.choose(vresults)
+        else:
+            return None
 
     def getEpisodeSubtitles(self, serieObj, episodeObj, videoObj=None):
         """ Third process step: try to retrive episode's subtitles

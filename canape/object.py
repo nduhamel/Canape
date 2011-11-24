@@ -23,8 +23,15 @@ from lxml import etree
 
 class Serie(object):
 
-    def __init__(self, name, episodes=None, quality=None, subtitle=None, id_=None):
+    def __init__(self, name=None, episodes=None, quality=None, subtitle=None, id_=None):
         self.name = name
+
+        #Allow populate object from json response
+        if isinstance(episodes, list):
+            new_episodes = [Episode(**kwargs) for kwargs in episodes if isinstance(kwargs, dict)]
+            new_episodes.extend([ep for ep in episodes if isinstance(ep, Episode) ])
+            episodes = new_episodes
+
         self.episodes = episodes or []
         self.quality = quality
         self.subtitle = subtitle
@@ -71,7 +78,7 @@ class Episode(object):
     def subtitle_downloaded(self):
         return self.state & self.SUBTITLE_DOWNLOADED
 
-    def __init__(self, snum, enum, state=None):
+    def __init__(self, snum=None, enum=None, state=None):
         self.snum = int(snum)
         self.enum = int(enum)
         if state is None:
