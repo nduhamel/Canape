@@ -21,9 +21,7 @@ import datetime
 
 import tvrage.api
 
-from canape.information.tvshow import TvShow
-
-class TvRage(TvShow):
+class TvRage(object):
     """ Adapter for Tvrage api """
 
     def __init__(self):

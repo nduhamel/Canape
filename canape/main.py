@@ -55,7 +55,7 @@ class Canape(object):
         #Load searcher object
         self.video = Video(self.config['sources'].as_list('video'))
         self.subtitle = Subtitle(self.config['sources'].as_list('subtitle'))
-        self.information = Information(self.config['sources']['information'])
+        self.information = Information()
 
         #Load chooser object
         self.videochooser = VideoChooser(self.config['QUALITIES_DB'])
