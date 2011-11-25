@@ -119,14 +119,10 @@ class Canape(object):
         Get information by self.information and test airdate
         TODO need to check next season
         """
-        #First check serie's id of serieObj
-        if serieObj.id_ is None:
-            serieObj.id_ = self.information.get_serie_id(serieObj.name)
-
         lastest_ep = serieObj.episodes[-1]
-        season_episodes= self.information.get_episodes(serieObj.name, lastest_ep.snum)
+        season_episodes= self.information.get_episodes(serieObj, lastest_ep.snum)
         for enum in season_episodes[lastest_ep.enum:]:
-            airdate = self.information.get_airdate(serieObj.name, lastest_ep.snum, enum)
+            airdate = self.information.get_airdate(serieObj, lastest_ep.snum, enum)
             if airdate <= datetime.date.today():
                 serieObj.episodes.append( Episode(lastest_ep.snum, enum) )
         serieObj.sort()

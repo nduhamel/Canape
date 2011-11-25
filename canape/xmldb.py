@@ -115,23 +115,14 @@ class Canapedb(object):
     def get_series(self):
         context = etree.iterparse(self.xmlfile, events=('end',), tag='serie')
         for event, elem in context:
-            name = elem.attrib['name']
-            quality = elem.attrib.get('quality', None)
-            subtitle = elem.attrib.get('subtitle', None)
-            id_ = elem.attrib.get('id_', None)
             ep=[]
             def return_ep(elem):
-                snum = int(elem.attrib['snum'])
-                enum = int(elem.attrib['enum'])
-                state = int(elem.attrib['state'])
-                ep.append(Episode(snum, enum, state))
+                ep.append(Episode(**elem.attrib))
+
             self._fast_iter_episode(elem,return_ep)
-            #Clear memory
-            elem.clear()
-            while elem.getprevious() is not None:
-                del elem.getparent()[0]
+
             # Create a generator
-            yield Serie(name, ep, quality=quality, subtitle=subtitle, id_=id_)
+            yield Serie(episodes=ep, **elem.attrib)
         del context
 
     def _fast_iter_episode(self, sele, function):

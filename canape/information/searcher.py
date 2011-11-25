@@ -33,17 +33,14 @@ class Searcher:
     def __init__(self):
         self.source = TvRage()
 
-    def get_serie_id(self, seriename):
-        return self.source.get_serie_id(seriename)
-
-    def get_seasons(self, seriename):
+    def get_seasons(self, videoObj):
         """ Return list of seasons """
-        return self.source.get_seasons(seriename)
+        return self.source.get_seasons(videoObj.name)
 
-    def get_episodes(self, seriename, snum):
+    def get_episodes(self, videoObj, snum):
         """ Return list of episodes """
-        return self.source.get_episodes(seriename, snum)
+        return self.source.get_episodes(videoObj.name, snum)
 
-    def get_airdate(self, seriename, snum, enum):
+    def get_airdate(self, videoObj, snum, enum):
         """ Return airdate (datetime) """
-        return self.source.get_airdate(seriename, snum, enum)
+        return self.source.get_airdate(videoObj.name, snum, enum)

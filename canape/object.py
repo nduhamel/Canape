@@ -23,19 +23,21 @@ from lxml import etree
 
 class Serie(object):
 
-    def __init__(self, name=None, episodes=None, quality=None, subtitle=None, id_=None):
+    def __init__(self, name=None, episodes=None, quality=None, subtitle=None, id_=None, datesstr=None):
+
         self.name = name
 
         #Allow populate object from json response
         if isinstance(episodes, list):
-            new_episodes = [Episode(**kwargs) for kwargs in episodes if isinstance(kwargs, dict)]
-            new_episodes.extend([ep for ep in episodes if isinstance(ep, Episode) ])
+            new_episodes = [Episode(**kwargs) for kwargs in episodes if isinstance(kwargs, dict)] #Dict to Episode
+            new_episodes.extend([ep for ep in episodes if isinstance(ep, Episode) ]) #Keep Episode
             episodes = new_episodes
 
         self.episodes = episodes or []
         self.quality = quality
         self.subtitle = subtitle
         self.id_ = id_
+        self.datesstr = datesstr
 
     def sort(self):
         self.episodes = sorted(self.episodes, key=attrgetter('state','snum','enum'))
@@ -48,7 +50,7 @@ class Serie(object):
             extra['subtitle'] = self.subtitle
         if self.id_ is not None:
             extra['id_'] = self.id_
-        serie = etree.Element("serie", name=self.name, **extra)
+        serie = etree.Element("serie", name=self.name, datesstr=self.datesstr, **extra)
         for ep in self.episodes:
             serie.append(ep.get_element())
         return etree.tostring(serie,pretty_print=True)
@@ -59,6 +61,14 @@ class Episode(object):
     SUBTITLE_DOWNLOADED = 2
     VIDEO_DOWNLOADING = 4
     VIDEO_DOWNLOADED = 8
+
+    def __init__(self, snum=None, enum=None, state=None):
+        self.snum = int(snum)
+        self.enum = int(enum)
+        if state is None:
+            self.state = self.WAITING
+        else:
+            self.state = int(state)
 
     def set_downloading(self):
         self.state = self.state | self.VIDEO_DOWNLOADING
@@ -77,14 +87,6 @@ class Episode(object):
 
     def subtitle_downloaded(self):
         return self.state & self.SUBTITLE_DOWNLOADED
-
-    def __init__(self, snum=None, enum=None, state=None):
-        self.snum = int(snum)
-        self.enum = int(enum)
-        if state is None:
-            self.state = self.WAITING
-        else:
-            self.state = int(state)
 
     def get_element(self):
         return etree.Element("episode", snum=str(self.snum), enum=str(self.enum),state=str(self.state))
