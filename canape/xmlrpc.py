@@ -41,6 +41,11 @@ class CanapeInterface(object):
         self.db.add_serie(serie)
         return 1
 
+    def del_serie(self, seriejson):
+        serie = Serie(**seriejson)
+        self.db.remove_serie(serie)
+        return 1
+
 
 class CanapeXMLRPCServer(threading.Thread):
     def __init__(self):
