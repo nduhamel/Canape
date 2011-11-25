@@ -96,7 +96,7 @@ class Canape(object):
                         episode.set_downloaded()
 
                 elif not episode.is_downloaded():
-                    video = self.getEpisodeDownload(serie.name, episode, serie.quality)
+                    video = self.getEpisodeDownload(serie, episode)
                     if video is not None:
                         video.id_ = "%sS%sE%s" % (serie.id_, episode.snum, episode.enum)
                         self.downloader.addVideo(video)
@@ -128,11 +128,11 @@ class Canape(object):
         serieObj.sort()
         return serieObj
 
-    def getEpisodeDownload(self, showname, episodeObj,quality=None):
+    def getEpisodeDownload(self, serieObj, episodeObj):
         """ Second process step: try to retrive download link for an
         episode, return a Video object (canape.video.video.Video) or
         None """
-        vresults = self.video.tvshow_search(showname, episodeObj.snum, episodeObj.enum, quality)
+        vresults = self.video.tvshow_search(serieObj, episodeObj)
         if len(vresults):
             return self.videochooser.choose(vresults)
         else:
@@ -141,10 +141,5 @@ class Canape(object):
     def getEpisodeSubtitles(self, serieObj, episodeObj, videoObj=None):
         """ Third process step: try to retrive episode's subtitles
         return a subtitleObj or None"""
-        if serieObj.subtitle is None:
-            lang = self.config['tvshow']['subtitles']
-        else:
-            lang = serieObj.subtitle
-
-        subtitles = self.subtitle.tvshow_search(serieObj.name, episodeObj.snum, episodeObj.enum, lang)
+        subtitles = self.subtitle.tvshow_search(serieObj, episodeObj)
         return self.subtitlechooser.choose(subtitles, videoObj)
