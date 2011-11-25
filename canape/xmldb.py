@@ -123,9 +123,9 @@ class Canapedb(object):
 
             self._fast_iter_episode(elem,return_ep)
 
-            if elem.attrib['quality'] is None:
+            if elem.attrib.get('quality',None) is None:
                 elem.attrib['quality'] = self.quality
-            if elem.attrib['subtitle'] is None:
+            if elem.attrib.get('subtitle',None) is None:
                 elem.attrib['subtitle'] = self.subtitle
 
             # Create a generator

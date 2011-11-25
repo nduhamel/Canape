@@ -80,21 +80,22 @@ class Canape(object):
         self.downloader.check()
 
         for serie in self.db.get_series():
+            LOGGER.info('Process serie: %s' % serie.name)
             serie = self.updateEpisodes(serie)
             updated_episodes = []
             for episode in serie.episodes:
-
+                LOGGER.info('Process episode: S{0:0>2}E{1:0>2}'.format(episode.enum, episode.snum) )
                 if episode.is_downloading():
-                    LOGGER.debug("Episode downloading check that...")
-                    id_ =  "%sS%sE%s" % (serie.id_, episode.snum, episode.enum)
                     isfinished=False
+                    id_ =  "%sS%sE%s" % (serie.id_, episode.snum, episode.enum)
+                    LOGGER.debug("Episode %s is downloading check that" % id_)
                     try:
                         isfinished = self.downloader.is_finished(id_)
+                        LOGGER.debug("Episode %s download finished" % id_)
                     except UnknownDownload:
-                        LOGGER.error("Episode %sS%sE%s unknown from downloader guess it's downloaded" % (serie.name, episode.snum, episode.enum))
+                        LOGGER.error("Episode %s unknown from downloader guess it's downloaded" % id_ )
                         episode.set_downloaded()
                     if isfinished:
-                        LOGGER.debug("Episode downloaded!")
                         episode.set_downloaded()
 
                 elif not episode.is_downloaded():
