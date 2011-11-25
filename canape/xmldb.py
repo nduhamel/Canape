@@ -39,8 +39,10 @@ class NotExist(Exception):
 
 class Canapedb(object):
 
-    def __init__(self, xmlfile):
+    def __init__(self, xmlfile, default_subtitle, default_quality):
         self.xmlfile = xmlfile
+        self.subtitle = default_subtitle
+        self.quality = default_quality
 
     @synchronized(LOCK)
     def add_serie(self, serieObj):
@@ -120,6 +122,11 @@ class Canapedb(object):
                 ep.append(Episode(**elem.attrib))
 
             self._fast_iter_episode(elem,return_ep)
+
+            if elem.attrib['quality'] is None:
+                elem.attrib['quality'] = self.quality
+            if elem.attrib['subtitle'] is None:
+                elem.attrib['subtitle'] = self.subtitle
 
             # Create a generator
             yield Serie(episodes=ep, **elem.attrib)

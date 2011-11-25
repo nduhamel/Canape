@@ -50,7 +50,9 @@ class Canape(object):
     def __init__(self):
 
         self.config = CanapeConfig()
-        self.db = Canapedb(self.config['VIDEOS_DB'])
+        self.db = Canapedb(self.config['VIDEOS_DB'],
+                           self.config['tvshow']['subtitles'],
+                           self.config['tvshow']['quality'])
 
         #Load searcher object
         self.video = Video(self.config['sources'].as_list('video'))
