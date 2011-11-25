@@ -29,7 +29,9 @@ class CanapeInterface(object):
 
     def __init__(self):
         self.config = CanapeConfig()
-        self.db = Canapedb(self.config['VIDEOS_DB'])
+        self.db = Canapedb(self.config['VIDEOS_DB'],
+                           self.config['tvshow']['subtitles'],
+                           self.config['tvshow']['quality'])
 
     def get_series(self):
         return list(self.db.get_series())
