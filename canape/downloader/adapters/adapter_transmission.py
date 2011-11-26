@@ -67,7 +67,3 @@ class Transmission(TorrentDownloader):
             return True
         else:
             return False
-
-if __name__ == '__main__':
-    tc = Transmission()
-    tc.addTorrent('coucou')
