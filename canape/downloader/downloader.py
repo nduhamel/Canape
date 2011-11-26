@@ -22,7 +22,7 @@ import pkgutil
 import logging
 
 from canape.exceptions import CanapeException
-from canape.downloader.torrent import TorrentDownloader
+from canape.downloader.torrent import TorrentDownloader, compute_hash
 from canape.downloader.downloadqueue import DownloadQueue
 from canape.downloader.exceptions import UnknownDownload, AlreadyDownloading
 
@@ -68,9 +68,9 @@ class Downloader(object):
     def is_finished(self, videoid):
         """ check if a video is downloading """
         for download in self.queue:
-            if download.extra['state'] == self.queue.WAITING:
-                return False
             if download.id_ == videoid:
+                if download.extra['state'] == self.queue.WAITING:
+                    return False
                 isfinished = False
                 try:
                     isfinished = self.torrent_downloaders[0].is_finished(download.extra['downloader_id'])
@@ -78,17 +78,20 @@ class Downloader(object):
                     self.queue.remove(download.id_)
                     LOGGER.error("Download %s unknown delete it from queue" % download.name)
                     raise
+                if isfinished:
+                    LOGGER.debug("Download %s finished delete it from queue" % download.name)
+                    self.queue.remove(download.id_)
                 return isfinished
         raise UnknownDownload("Downloader have no trace of this download")
 
     def _add_torrent(self, videoObj):
         if len(self.torrent_downloaders):
             try:
-                id_ = self.torrent_downloaders[0].addTorrent(videoObj)
+                self.torrent_downloaders[0].addTorrent(videoObj)
             except AlreadyDownloading:
                 LOGGER.error("Download %s already downloading" % videoObj)
                 return
-            videoObj.extra['downloader_id'] = id_
+            videoObj.extra['downloader_id'] = compute_hash(videoObj)
             self.queue.append(videoObj, self.queue.STARTED)
         else:
             LOGGER.warning('No available downloader, put in queue')

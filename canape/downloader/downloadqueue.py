@@ -94,6 +94,7 @@ class DownloadQueue(object):
             os.remove(tmp_file.name)
             raise IndexError()
 
+    @synchronized(LOCK)
     def remove(self, videoid):
 
         tmp_found=False

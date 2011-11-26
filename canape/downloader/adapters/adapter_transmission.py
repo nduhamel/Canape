@@ -17,19 +17,15 @@
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
-import urllib
-import hashlib
 import logging
 
-LOGGER = logging.getLogger(__name__)
-
-import bencode
 import transmissionrpc
 
-from canape.downloader.torrent import TorrentDownloader
+from canape.downloader.torrent import TorrentDownloader, compute_hash
 from canape.exceptions import InvalidConfig
 from canape.downloader.exceptions import RemoteSoftwareUnavailable, AlreadyDownloading, UnknownDownload
 
+LOGGER = logging.getLogger(__name__)
 
 class Transmission(TorrentDownloader):
     name = 'transmission'
@@ -53,30 +49,21 @@ class Transmission(TorrentDownloader):
             raise
 
     def addTorrent(self, videoObj):
-        #Check torrent hash
-        torrent = urllib.urlopen(videoObj.download_url).read()
-        info = bencode.bdecode(torrent)['info']
-        h = hashlib.sha1()
-        h.update(bencode.bencode(info))
-        torrentHash = h.hexdigest()
-        torrents = [torrent.hashString for torrent in self.tc.list().values()]
-
-        if torrentHash in torrents:
+        """ Add a torrent to transmission and return torrent hash as id"""
+        torrents_hash = [torrent.hashString for torrent in self.tc.list().values()]
+        if compute_hash(videoObj) in torrents_hash:
             raise AlreadyDownloading("Torrent already in download")
         else:
             if self.download_dir is not None:
-                torrent = self.tc.add_uri(videoObj.download_url, download_dir=self.download_dir)
+                self.tc.add_uri(videoObj.download_url, download_dir=self.download_dir)
             else:
-                torrent = self.tc.add_uri(videoObj.download_url)
-            return str(torrent.keys()[0])
+                self.tc.add_uri(videoObj.download_url)
 
-    def is_finished(self, torrentid):
-        torrentid = int(torrentid)
-        info = self.tc.info(torrentid)
+    def is_finished(self, torrent_hash):
+        info = self.tc.info(torrent_hash)
         if not info:
             raise UnknownDownload()
-
-        if info[torrentid].progress == 100:
+        if info.values()[0].progress == 100:
             return True
         else:
             return False
