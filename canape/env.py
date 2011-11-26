@@ -47,6 +47,7 @@ class CanapeEnv(Environement):
         self['CANAPE_CONFIG_FILE'] = self['CONFIG_HOME']+'/canape.ini'
         self['CANAPE_DATA_DIR'] = self['DATA_HOME']+'/canape'
         self['CANAPE_DIR'] = package_path()
+        self['CANAPE_CONFIGSPEC_FILE'] = self['CANAPE_DIR']+'/data/canape.configspec'
 
         # Test if CANAPE_CONFIG_FILE and CANAPE_DATA_DIR exist
         # if not create them

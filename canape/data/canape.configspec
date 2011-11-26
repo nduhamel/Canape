@@ -1,0 +1,11 @@
+[tvshow]
+quality = string(default=None)
+subtitles = string(max=2,default=None)
+check_interval = integer(default=60)
+
+[sources]
+video = force_list(default=tpb)
+subtitle = force_list(default=tvsubtitles)
+
+[downloader]
+download_dir = string(default=~/canapedl)

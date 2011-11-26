@@ -55,8 +55,8 @@ class Canape(object):
                            self.config['tvshow']['quality'])
 
         #Load searcher object
-        self.video = Video(self.config['sources'].as_list('video'))
-        self.subtitle = Subtitle(self.config['sources'].as_list('subtitle'))
+        self.video = Video(self.config['sources']['video'])
+        self.subtitle = Subtitle(self.config['sources']['subtitle'])
         self.information = Information()
 
         #Load chooser object
@@ -71,7 +71,7 @@ class Canape(object):
         server.start()
         while True:
             self.check()
-            t = self.config['tvshow'].as_int('check_interval')
+            t = self.config['tvshow']['check_interval']
             time.sleep(t*60)
 
     def check(self):
@@ -84,7 +84,7 @@ class Canape(object):
             serie = self.updateEpisodes(serie)
             updated_episodes = []
             for episode in serie.episodes:
-                LOGGER.info('Process episode: S{0:0>2}E{1:0>2}'.format(episode.enum, episode.snum) )
+                LOGGER.info('Process episode: S{0:0>2}E{1:0>2}'.format(episode.snum, episode.enum) )
                 if episode.is_downloading():
                     isfinished=False
                     id_ =  "%sS%sE%s" % (serie.id_, episode.snum, episode.enum)

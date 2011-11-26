@@ -28,6 +28,7 @@ class CanapeConfig(ConfigObj):
         self.env = canape.env.CanapeEnv()
         ConfigObj.__init__(self,
                             infile=self.env['CANAPE_CONFIG_FILE'],
+                            configspec=self.env['CANAPE_CONFIGSPEC_FILE'],
                             interpolation=False
                             )
         self['VIDEOS_DB'] = self.env['CANAPE_DATA_DIR']+'/videos.xml'
