@@ -77,6 +77,13 @@ class Canape(object):
             time.sleep(t*60)
 
     def check(self):
+        """
+        Process all series from database:
+
+         1. First search for new episode with :py:meth:`Canape.updateEpisodes`
+         2. Secondly search and download them with :py:meth:`Canape.getEpisodeDownload`
+         3. Thirdly search and download subtitles with :py:meth:`Canape.getEpisodeSubtitles`
+        """
         LOGGER.info("Start checking")
 
         self.downloader.check()
@@ -118,11 +125,13 @@ class Canape(object):
             self.db.update_serie(serie)
 
     def updateEpisodes(self, serieObj):
-        """ First process step:
-        take a serieObj and return an update serieObj with new episodes
+        """
+        Update serieObj with new avalaible episodes return updated serieObj
 
-        Get information by self.information and test airdate
-        TODO need to check next season
+        serieObj must be an instance of the :class:`Serie` class.
+
+        First process step.
+        Get information by :py:class:`canape.information.Searcher` and test airdate.
         """
         lastest_ep = serieObj.episodes[-1]
         season_episodes= self.information.get_episodes(serieObj, lastest_ep.snum)
