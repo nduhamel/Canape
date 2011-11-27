@@ -1,5 +1,6 @@
-Canape main class
-=================
+:mod:`canape.main` -- Main Canape module
+========================================
+.. module:: canape.main
 
-.. autoclass:: canape.main.Canape
+.. autoclass:: Canape
     :members:

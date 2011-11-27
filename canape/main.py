@@ -17,17 +17,6 @@
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
-"""
-Try to watch for new episodes and download them
-dep:
- python-tvrage      http://pypi.python.org/pypi/python-tvrage/
- pytpb              https://github.com/nduhamel/pytpb
- tvsubtitles_api    https://github.com/nduhamel/tvsubtitles_api
- configobj
- transmissionrpc    http://packages.python.org/transmissionrpc/
- bencode            http://pypi.python.org/pypi/bencode/  for .torrent decode
- python-daemon      http://pypi.python.org/pypi/python-daemon
-"""
 import logging
 import datetime
 import time
@@ -67,22 +56,30 @@ class Canape(object):
         self.downloader = Downloader(config=self.config.get('downloader', {}))
 
     def daemon_run(self):
+        """
+        Launch periodically :meth:`Canape.check`.
+
+        The launch interval is determined by the config file::
+
+            [tvshow]
+            check_interval = TIME IN MINUTES
+        """
         if self.config['xmlrpc']['start']:
             server = CanapeXMLRPCServer(self.config['xmlrpc']['hostname'],
                                         self.config['xmlrpc']['port'])
             server.start()
+        t = self.config['tvshow']['check_interval'] * 60
         while True:
             self.check()
-            t = self.config['tvshow']['check_interval']
-            time.sleep(t*60)
+            time.sleep(t)
 
     def check(self):
         """
         Process all series from database:
 
-         1. First search for new episode with :py:meth:`Canape.updateEpisodes`
-         2. Secondly search and download them with :py:meth:`Canape.getEpisodeDownload`
-         3. Thirdly search and download subtitles with :py:meth:`Canape.getEpisodeSubtitles`
+         1. First search for new episode with :meth:`Canape.updateEpisodes`
+         2. Secondly search and download them with :meth:`Canape.getEpisodeDownload`
+         3. Thirdly search and download subtitles with :meth:`Canape.getEpisodeSubtitles`
         """
         LOGGER.info("Start checking")
 
@@ -128,9 +125,8 @@ class Canape(object):
         """
         Update serieObj with new avalaible episodes return updated serieObj
 
-        serieObj must be an instance of the :class:`Serie` class.
+        serieObj must be an instance of the :class:`canape.object.Serie` class.
 
-        First process step.
         Get information by :py:class:`canape.information.Searcher` and test airdate.
         """
         lastest_ep = serieObj.episodes[-1]
@@ -143,9 +139,17 @@ class Canape(object):
         return serieObj
 
     def getEpisodeDownload(self, serieObj, episodeObj):
-        """ Second process step: try to retrive download link for an
-        episode, return a Video object (canape.video.video.Video) or
-        None """
+        """
+        Try to retrieve a download link for a specified serie's episode.
+        Return an instance of the :class:`canape.video.video.Video` class or
+        None.
+
+        * serieObj must be an instance of the :class:`canape.object.Serie` class.
+        * episodeObj must be an instance of the :class:`canape.object.Episode` class.
+
+        Use :py:class:`canape.video.Searcher` for find video link and
+        :py:class:`canape.chooser.VideoChooser` to choose the best.
+        """
         vresults = self.video.tvshow_search(serieObj, episodeObj)
         if len(vresults):
             return self.videochooser.choose(vresults)
@@ -153,7 +157,17 @@ class Canape(object):
             return None
 
     def getEpisodeSubtitles(self, serieObj, episodeObj, videoObj=None):
-        """ Third process step: try to retrive episode's subtitles
-        return a subtitleObj or None"""
+        """
+        Try to retrieve subtitles for a specified serie's episode.
+        Return an instance of the :class:`canape.subtitle.subtitle.Subtitle` class or
+        None.
+
+        * serieObj must be an instance of the :py:class:`canape.object.Serie` class.
+        * episodeObj must be an instance of the :py:class:`canape.object.Episode` class.
+        * videoObj must be an instance of the :py:class:`canape.chooser.VideoChooser`
+
+        Use :py:class:`canape.subtitle.Searcher` for find subtitle and
+        :py:class:`canape.chooser.SubtitleChooser` to choose the best.
+        """
         subtitles = self.subtitle.tvshow_search(serieObj, episodeObj)
         return self.subtitlechooser.choose(subtitles, videoObj)

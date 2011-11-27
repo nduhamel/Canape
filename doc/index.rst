@@ -1,9 +1,10 @@
 .. Canape documentation
 
-Welcome to Canape's documentation!
-==================================
+Canape's documentation
+======================
 
-Contents:
+Developper's documentation
+--------------------------
 
 .. toctree::
     :maxdepth: 2
