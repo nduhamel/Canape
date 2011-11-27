@@ -67,14 +67,17 @@ class Canape(object):
         self.downloader = Downloader(config=self.config.get('downloader', {}))
 
     def daemon_run(self):
-        server = CanapeXMLRPCServer()
-        server.start()
+        if self.config['xmlrpc']['start']:
+            server = CanapeXMLRPCServer(self.config['xmlrpc']['hostname'],
+                                        self.config['xmlrpc']['port'])
+            server.start()
         while True:
             self.check()
             t = self.config['tvshow']['check_interval']
             time.sleep(t*60)
 
     def check(self):
+        time.sleep(20)
         LOGGER.info("Start checking")
 
         self.downloader.check()

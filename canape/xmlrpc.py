@@ -48,10 +48,10 @@ class CanapeInterface(object):
 
 
 class CanapeXMLRPCServer(threading.Thread):
-    def __init__(self):
+    def __init__(self, hostname='localhost', port=8080):
         threading.Thread.__init__(self)
         self.daemon = True
-        self.server = SimpleXMLRPCServer(("localhost", 8080))
+        self.server = SimpleXMLRPCServer((hostname, port))
 
     def run(self):
         self.server.register_instance(CanapeInterface())

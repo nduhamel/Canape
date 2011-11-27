@@ -20,6 +20,7 @@
 from os.path import expanduser
 
 from configobj import ConfigObj
+from validate import Validator
 
 import canape.env
 
@@ -31,6 +32,8 @@ class CanapeConfig(ConfigObj):
                             configspec=self.env['CANAPE_CONFIGSPEC_FILE'],
                             interpolation=False
                             )
+        validator = Validator()
+        self.validate(validator)
         self['VIDEOS_DB'] = self.env['CANAPE_DATA_DIR']+'/videos.xml'
         self['QUALITIES_DB'] = self.env['CANAPE_DATA_DIR']+'/qualities.xml'
         self['DOWNLOADS_DB'] = self.env['CANAPE_DATA_DIR']+'/downloads.xml'

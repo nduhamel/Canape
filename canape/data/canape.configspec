@@ -1,3 +1,8 @@
+[xmlrpc]
+start = boolean(default=True)
+hostname = string(default=localhost)
+port = integer(default=8080)
+
 [tvshow]
 quality = string(default=None)
 subtitles = string(max=2,default=None)
