@@ -77,7 +77,6 @@ class Canape(object):
             time.sleep(t*60)
 
     def check(self):
-        time.sleep(20)
         LOGGER.info("Start checking")
 
         self.downloader.check()

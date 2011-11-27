@@ -36,9 +36,20 @@ class Searcher:
 
 
     def tvshow_search(self, serieObj, episodeObj):
-        results = []
+        """ """
+        global_results = []
         for source in self.tvshow_sources:
-            results.extend(source.tvshow_search(serieObj.name, episodeObj.snum, episodeObj.enum, serieObj.quality))
+
+            LOGGER.info("Search for {0.name} S{1.snum:0>2}E{1.enum:0>2} in quality: {0.quality} with {2.name}".format(
+                        serieObj, episodeObj, source) )
+
+            results = source.tvshow_search(serieObj.name, episodeObj.snum, episodeObj.enum, serieObj.quality)
+            global_results.extend(results)
+
+            LOGGER.debug("%s results:" % source.name)
+            for r in results:
+                LOGGER.debug(repr(r))
+
         return results
 
     def _load_sources(self, path, used_sources=None):
