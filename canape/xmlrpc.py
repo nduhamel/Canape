@@ -51,14 +51,14 @@ class CanapeInterface(object):
         return 1
 
     def get_qualities(self):
-        pass
+        return list(self.qualitiesdb.iter_qualities())
 
 
 class CanapeXMLRPCServer(threading.Thread):
     def __init__(self, hostname='localhost', port=8080):
         threading.Thread.__init__(self)
         self.daemon = True
-        self.server = SimpleXMLRPCServer((hostname, port))
+        self.server = SimpleXMLRPCServer((hostname, port), allow_none=True)
 
     def run(self):
         self.server.register_instance(CanapeInterface())
