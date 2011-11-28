@@ -1,0 +1,181 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>canape.main – Main Canape module &mdash; Canape 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Canape 1 documentation" href="index.html" />
+    <link rel="next" title="canape.object – Main Canape object" href="object.html" />
+    <link rel="prev" title="Installation" href="install.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="object.html" title="canape.object – Main Canape object"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Canape 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-canape.main">
+<span id="canape-main-main-canape-module"></span><h1><a class="reference internal" href="#module-canape.main" title="canape.main"><tt class="xref py py-mod docutils literal"><span class="pre">canape.main</span></tt></a> &#8211; Main Canape module<a class="headerlink" href="#module-canape.main" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="canape.main.Canape">
+<em class="property">class </em><tt class="descclassname">canape.main.</tt><tt class="descname">Canape</tt><a class="headerlink" href="#canape.main.Canape" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="canape.main.Canape.check">
+<tt class="descname">check</tt><big>(</big><big>)</big><a class="headerlink" href="#canape.main.Canape.check" title="Permalink to this definition">¶</a></dt>
+<dd><p>Process all series from database:</p>
+<ol class="arabic simple">
+<li>First search for new episode with <a class="reference internal" href="#canape.main.Canape.updateEpisodes" title="canape.main.Canape.updateEpisodes"><tt class="xref py py-meth docutils literal"><span class="pre">Canape.updateEpisodes()</span></tt></a></li>
+<li>Secondly search and download them with <a class="reference internal" href="#canape.main.Canape.getEpisodeDownload" title="canape.main.Canape.getEpisodeDownload"><tt class="xref py py-meth docutils literal"><span class="pre">Canape.getEpisodeDownload()</span></tt></a></li>
+<li>Thirdly search and download subtitles with <a class="reference internal" href="#canape.main.Canape.getEpisodeSubtitles" title="canape.main.Canape.getEpisodeSubtitles"><tt class="xref py py-meth docutils literal"><span class="pre">Canape.getEpisodeSubtitles()</span></tt></a></li>
+</ol>
+</dd></dl>
+
+<dl class="method">
+<dt id="canape.main.Canape.daemon_run">
+<tt class="descname">daemon_run</tt><big>(</big><big>)</big><a class="headerlink" href="#canape.main.Canape.daemon_run" title="Permalink to this definition">¶</a></dt>
+<dd><p>Launch periodically <a class="reference internal" href="#canape.main.Canape.check" title="canape.main.Canape.check"><tt class="xref py py-meth docutils literal"><span class="pre">Canape.check()</span></tt></a>.</p>
+<p>The launch interval is determined by the config file:</p>
+<div class="highlight-python"><pre>[tvshow]
+check_interval = TIME IN MINUTES</pre>
+</div>
+</dd></dl>
+
+<dl class="method">
+<dt id="canape.main.Canape.getEpisodeDownload">
+<tt class="descname">getEpisodeDownload</tt><big>(</big><em>serieObj</em>, <em>episodeObj</em><big>)</big><a class="headerlink" href="#canape.main.Canape.getEpisodeDownload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to retrieve a download link for a specified serie&#8217;s episode.
+Return an instance of the <tt class="xref py py-class docutils literal"><span class="pre">canape.video.video.Video</span></tt> class or
+None.</p>
+<ul class="simple">
+<li>serieObj must be an instance of the <a class="reference internal" href="object.html#canape.object.Serie" title="canape.object.Serie"><tt class="xref py py-class docutils literal"><span class="pre">canape.object.Serie</span></tt></a> class.</li>
+<li>episodeObj must be an instance of the <a class="reference internal" href="object.html#canape.object.Episode" title="canape.object.Episode"><tt class="xref py py-class docutils literal"><span class="pre">canape.object.Episode</span></tt></a> class.</li>
+</ul>
+<p>Use <tt class="xref py py-class docutils literal"><span class="pre">canape.video.Searcher</span></tt> for find video link and
+<tt class="xref py py-class docutils literal"><span class="pre">canape.chooser.VideoChooser</span></tt> to choose the best.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="canape.main.Canape.getEpisodeSubtitles">
+<tt class="descname">getEpisodeSubtitles</tt><big>(</big><em>serieObj</em>, <em>episodeObj</em>, <em>videoObj=None</em><big>)</big><a class="headerlink" href="#canape.main.Canape.getEpisodeSubtitles" title="Permalink to this definition">¶</a></dt>
+<dd><p>Try to retrieve subtitles for a specified serie&#8217;s episode.
+Return an instance of the <tt class="xref py py-class docutils literal"><span class="pre">canape.subtitle.subtitle.Subtitle</span></tt> class or
+None.</p>
+<ul class="simple">
+<li>serieObj must be an instance of the <a class="reference internal" href="object.html#canape.object.Serie" title="canape.object.Serie"><tt class="xref py py-class docutils literal"><span class="pre">canape.object.Serie</span></tt></a> class.</li>
+<li>episodeObj must be an instance of the <a class="reference internal" href="object.html#canape.object.Episode" title="canape.object.Episode"><tt class="xref py py-class docutils literal"><span class="pre">canape.object.Episode</span></tt></a> class.</li>
+<li>videoObj must be an instance of the <tt class="xref py py-class docutils literal"><span class="pre">canape.chooser.VideoChooser</span></tt></li>
+</ul>
+<p>Use <tt class="xref py py-class docutils literal"><span class="pre">canape.subtitle.Searcher</span></tt> for find subtitle and
+<tt class="xref py py-class docutils literal"><span class="pre">canape.chooser.SubtitleChooser</span></tt> to choose the best.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="canape.main.Canape.updateEpisodes">
+<tt class="descname">updateEpisodes</tt><big>(</big><em>serieObj</em><big>)</big><a class="headerlink" href="#canape.main.Canape.updateEpisodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Update serieObj with new avalaible episodes return updated serieObj</p>
+<p>serieObj must be an instance of the <a class="reference internal" href="object.html#canape.object.Serie" title="canape.object.Serie"><tt class="xref py py-class docutils literal"><span class="pre">canape.object.Serie</span></tt></a> class.</p>
+<p>Get information by <tt class="xref py py-class docutils literal"><span class="pre">canape.information.Searcher</span></tt> and test airdate.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="install.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="object.html"
+                        title="next chapter"><tt class="docutils literal"><span class="pre">canape.object</span></tt> &#8211; Main Canape object</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/main.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="object.html" title="canape.object – Main Canape object"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             >previous</a> |</li>
+        <li><a href="index.html">Canape 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Nicolas Duhamel.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>

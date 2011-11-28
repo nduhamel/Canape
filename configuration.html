@@ -1,0 +1,219 @@
+
+
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Configuration &mdash; Canape 1 documentation</title>
+    
+    <link rel="stylesheet" href="_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     '1',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="Canape 1 documentation" href="index.html" />
+    <link rel="next" title="canape.main – Main Canape module" href="main.html" />
+    <link rel="prev" title="Installation" href="install.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="main.html" title="canape.main – Main Canape module"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             accesskey="P">previous</a> |</li>
+        <li><a href="index.html">Canape 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="configuration">
+<h1>Configuration<a class="headerlink" href="#configuration" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="configuration-file">
+<h2>Configuration file<a class="headerlink" href="#configuration-file" title="Permalink to this headline">¶</a></h2>
+<dl class="docutils">
+<dt>The Canape configuration file location depends of the plateforme:</dt>
+<dd><ul class="first last simple">
+<li>On Linux: <em>~/.config/canape.ini</em></li>
+</ul>
+</dd>
+</dl>
+</div>
+<div class="section" id="default-configuration-file">
+<h2>Default configuration file<a class="headerlink" href="#default-configuration-file" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><pre># Configuration file for canape
+[xmlrpc]
+start = True
+hostname = localhost
+port = 8080
+
+[tvshow]
+quality = 720p
+subtitles = fr
+#Interval between two check in minutes
+check_interval=1
+#Time between the air date and the moment we try to search the video (in hours)
+check_timedelta = 36
+
+[sources]
+#video and subtitle are list of value
+#exemple:
+#video = tpb, anothersite, etc
+video = tpb
+subtitle = tvsubtitles
+
+[downloader]
+#Downloader configuration
+download_dir = ~/canapedl
+[[adapters]]
+[[[transmission]]]
+address=localhost
+port=9090
+#user=None
+#password=None</pre>
+</div>
+</div>
+<div class="section" id="configuration-directives">
+<h2>Configuration directives<a class="headerlink" href="#configuration-directives" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="xmlrpc">
+<h3>[xmlrpc]<a class="headerlink" href="#xmlrpc" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>start</strong> (<em>True</em> or <em>False</em>) define if the XML-PRC server must be started.</li>
+<li><strong>hostname</strong> (<em>hostname</em> or <em>IP</em>) define on which adress the server must listen.</li>
+<li><strong>port</strong> define on which port the server must listen.</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="tvshow">
+<h3>[tvshow]<a class="headerlink" href="#tvshow" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>quality</strong> (<em>default=720p</em>) quality label, define the default quality.</li>
+<li><strong>subtitles</strong> (<em>default=fr</em>) two letter country code, define the default subtitle language.</li>
+<li><strong>check_interval</strong> in minutes, define interval between two check.</li>
+<li><strong>check_timedelta</strong> (<em>default=36</em>) define the time between the air date and the moment when we try to search the video (in hours)</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="sources">
+<h3>[sources]<a class="headerlink" href="#sources" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>video</strong> list of video sources to use</li>
+<li><strong>subtitle</strong> list of subtitles sources to use</li>
+</ul>
+</div></blockquote>
+</div>
+<div class="section" id="downloader">
+<h3>[downloader]<a class="headerlink" href="#downloader" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div><ul class="simple">
+<li><strong>download_dir</strong> (<em>default=~/canapedl</em>) download destination directory</li>
+</ul>
+</div></blockquote>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Configuration</a><ul>
+<li><a class="reference internal" href="#configuration-file">Configuration file</a></li>
+<li><a class="reference internal" href="#default-configuration-file">Default configuration file</a></li>
+<li><a class="reference internal" href="#configuration-directives">Configuration directives</a><ul>
+<li><a class="reference internal" href="#xmlrpc">[xmlrpc]</a></li>
+<li><a class="reference internal" href="#tvshow">[tvshow]</a></li>
+<li><a class="reference internal" href="#sources">[sources]</a></li>
+<li><a class="reference internal" href="#downloader">[downloader]</a></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="install.html"
+                        title="previous chapter">Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="main.html"
+                        title="next chapter"><tt class="docutils literal"><span class="pre">canape.main</span></tt> &#8211; Main Canape module</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="_sources/configuration.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="main.html" title="canape.main – Main Canape module"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="install.html" title="Installation"
+             >previous</a> |</li>
+        <li><a href="index.html">Canape 1 documentation</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2011, Nicolas Duhamel.
+      Created using <a href="http://sphinx.pocoo.org/">Sphinx</a> 1.1.2.
+    </div>
+  </body>
+</html>
