@@ -48,7 +48,7 @@ class TvRage(object):
         """ Return airdate (datetime) """
         if seriename not in self._shows.keys():
             self._get_serie(seriename)
-        return self._shows[seriename].season(snum)[enum].airdate
+        return datetime.datetime.combine(self._shows[seriename].season(snum)[enum].airdate, datetime.time() )
 
     def _get_serie(self, seriename):
         self._shows[seriename] = tvrage.api.Show(seriename)

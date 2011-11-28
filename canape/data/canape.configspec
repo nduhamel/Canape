@@ -7,6 +7,7 @@ port = integer(default=8080)
 quality = string(default=None)
 subtitles = string(max=2,default=None)
 check_interval = integer(default=60)
+check_timedelta = integer(default=36)
 
 [sources]
 video = force_list(default=tpb)
