@@ -3,6 +3,17 @@
 Canape's documentation
 ======================
 
+User's documentation
+--------------------
+
+.. toctree::
+    :maxdepth: 2
+
+    install
+    configuration
+    launch
+
+
 Developper's documentation
 --------------------------
 
