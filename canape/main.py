@@ -20,6 +20,7 @@
 import logging
 import datetime
 import time
+from operator import attrgetter
 
 from canape.video import Searcher as Video
 from canape.subtitle import Searcher as Subtitle
@@ -130,7 +131,7 @@ class Canape(object):
 
         Get information by :py:class:`canape.information.Searcher` and test airdate.
         """
-        lastest_ep = serieObj.episodes[-1]
+        lastest_ep = sorted(serieObj.episodes,  key=attrgetter('snum','enum'))[-1]
         season_episodes= self.information.get_episodes(serieObj, lastest_ep.snum)
         for enum in season_episodes[lastest_ep.enum:]:
             airdate = self.information.get_airdate(serieObj, lastest_ep.snum, enum)
