@@ -105,6 +105,7 @@ class Canape(object):
                         episode.set_downloaded()
 
                 elif not episode.is_downloaded():
+                    LOGGER.info('Search for video')
                     video = self.getEpisodeDownload(serie, episode)
                     if video is not None:
                         video.id_ = "%sS%sE%s" % (serie.id_, episode.snum, episode.enum)
@@ -112,6 +113,7 @@ class Canape(object):
                         episode.set_downloading()
 
                 if not episode.subtitle_downloaded():
+                    LOGGER.info('Search for subtitles')
                     subtitle = self.getEpisodeSubtitles(serie, episode, video)
                     if subtitle is not None:
                         self.downloader.addSubtitle(subtitle)
