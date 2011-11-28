@@ -131,13 +131,14 @@ class Canape(object):
 
         Get information by :py:class:`canape.information.Searcher` and test airdate.
         """
-        lastest_ep = sorted(serieObj.episodes,  key=attrgetter('snum','enum'))[-1]
+        serieObj.episodes.sort()
+        lastest_ep = serieObj.episodes[-1]
         season_episodes= self.information.get_episodes(serieObj, lastest_ep.snum)
+        time_delta = datetime.timedelta( hours=self.config['tvshow']['check_timedelta'] )
         for enum in season_episodes[lastest_ep.enum:]:
             airdate = self.information.get_airdate(serieObj, lastest_ep.snum, enum)
-            if airdate <= datetime.date.today():
+            if airdate + time_delta <= datetime.datetime.now():
                 serieObj.episodes.append( Episode(lastest_ep.snum, enum) )
-        serieObj.sort()
         return serieObj
 
     def getEpisodeDownload(self, serieObj, episodeObj):

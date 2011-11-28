@@ -40,7 +40,7 @@ class Serie(object):
         self.datesstr = datesstr
 
     def sort(self):
-        self.episodes = sorted(self.episodes, key=attrgetter('state','snum','enum'))
+        self.episodes = sorted(self.episodes, key=attrgetter('snum','enum'))
 
     def __repr__(self):
         extra = {}
