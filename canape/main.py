@@ -132,7 +132,7 @@ class Canape(object):
 
         Get information by :py:class:`canape.information.Searcher` and test airdate.
         """
-        serieObj.episodes.sort()
+        serieObj.sort()
         lastest_ep = serieObj.episodes[-1]
         season_episodes= self.information.get_episodes(serieObj, lastest_ep.snum)
         time_delta = datetime.timedelta( hours=self.config['tvshow']['check_timedelta'] )
