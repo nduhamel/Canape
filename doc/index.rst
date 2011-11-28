@@ -10,6 +10,7 @@ Developper's documentation
     :maxdepth: 2
 
     main
+    object
 
 
 

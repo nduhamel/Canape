@@ -22,9 +22,24 @@ from operator import attrgetter
 from lxml import etree
 
 class Serie(object):
+    """
+    :class:`Serie` represent a serie in Canape
 
-    def __init__(self, name=None, episodes=None, quality=None, subtitle=None, id_=None, datesstr=None):
+    An intance of :class:`Serie` class have this attributes:
+     * :attr:`name` the serie name
+     * :attr:`id_` the serie's TVRage id
+     * :attr:`datestr` on air date string (exemple: 2004-2011)
+     * :attr:`episodes` a list of episodes, all item are instances of :class:`Episode` class
+     * :attr:`subtitle` two letter contry code of the subtitle language or **None**
+     * :attr:`quality` quality label or **None**
+    """
 
+    def __init__(self, name=None, episodes=None, quality=None,
+                 subtitle=None, id_=None, datesstr=None):
+        """
+        :class:`Serie`'s constructor, it can be populate from a json or
+        xml representation of an instance.
+        """
         self.name = name
 
         #Allow populate object from json response
@@ -43,6 +58,7 @@ class Serie(object):
         self.episodes = sorted(self.episodes, key=attrgetter('state','snum','enum'))
 
     def __repr__(self):
+        """ Return an xml representation of the :class:`Serie` instance """
         extra = {}
         if self.quality is not None:
             extra['quality'] = self.quality
@@ -56,6 +72,21 @@ class Serie(object):
         return etree.tostring(serie,pretty_print=True)
 
 class Episode(object):
+    """
+    :class:`Episode` represent an episode in Canape
+
+    An intance of :class:`Episode` class have this attributes:
+     * :attr:`snum` the episode season number
+     * :attr:`enum` the episode number
+     * :attr:`state` internal state of the episode it can be intersection of this values:
+
+         * :attr:`Episode.WAITING`
+         * :attr:`Episode.SUBTITLE_DOWNLOADED`
+         * :attr:`Episode.VIDEO_DOWNLOADING`
+         * :attr:`Episode.VIDEO_DOWNLOADED`
+
+    Don't modify it manualy use the object methods
+    """
 
     WAITING = 1
     SUBTITLE_DOWNLOADED = 2
@@ -71,22 +102,29 @@ class Episode(object):
             self.state = int(state)
 
     def set_downloading(self):
+        """ Set the :class:`Episode` instance video as downloading """
         self.state = self.state | self.VIDEO_DOWNLOADING
 
     def set_downloaded(self):
+        """ Set the :class:`Episode` instance video as downloaded """
         self.state = self.state | self.VIDEO_DOWNLOADED
 
     def is_downloading(self):
+        """ Return True if the :class:`Episode` instance video is downloading """
         return self.state & self.VIDEO_DOWNLOADING and not self.state & self.VIDEO_DOWNLOADED
 
     def is_downloaded(self):
+        """ Return True if the :class:`Episode` instance video is downloaded """
         return self.state & self.VIDEO_DOWNLOADING and  self.state & self.VIDEO_DOWNLOADED
 
     def set_subtitle_downloaded(self):
+        """ Set the :class:`Episode` instance subtitle as downloaded """
         self.state = self.state | self.SUBTITLE_DOWNLOADED
 
     def subtitle_downloaded(self):
+        """ Return True if the :class:`Episode` instance subtitle is downloaded """
         return self.state & self.SUBTITLE_DOWNLOADED
 
     def get_element(self):
+        """ Return the xml representation of the :class:`Episode` instance """
         return etree.Element("episode", snum=str(self.snum), enum=str(self.enum),state=str(self.state))
