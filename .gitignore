@@ -1,7 +1,0 @@
-*pyc
-build/
-dist/
-*.egg-info
-MANIFEST
-doc/_build/*
-

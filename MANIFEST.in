@@ -1,5 +1,0 @@
-include runner
-recursive-include canape/data *
-recursive-include canape/downloader/adapters *.py
-recursive-include canape/subtitle/sources *.py
-recursive-include canape/video/sources *.py
