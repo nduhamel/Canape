@@ -95,14 +95,14 @@ class Canape(object):
                 if episode.is_downloading():
                     isfinished=False
                     id_ =  "%sS%sE%s" % (serie.id_, episode.snum, episode.enum)
+                    LOGGER.debug("Episode %s is downloading check that" % id_)
                     try:
                         isfinished = self.downloader.is_finished(id_)
-                        LOGGER.debug("Episode %s download finished" % id_)
                     except UnknownDownload:
                         LOGGER.error("Episode %s unknown from downloader guess it's downloaded" % id_ )
                         episode.set_downloaded()
                     if isfinished:
-                        LOGGER.debug("Episode %s is downloading check that" % id_)
+                        LOGGER.debug("Episode %s download finished" % id_)
                         episode.set_downloaded()
 
                 elif not episode.is_downloaded():

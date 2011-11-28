@@ -23,15 +23,19 @@ import threading
 from canape.config import CanapeConfig
 from canape.xmldb import Canapedb
 from canape.object import Serie
+from canape.quality import Qualitiesdb
 
 
 class CanapeInterface(object):
 
     def __init__(self):
         self.config = CanapeConfig()
+
         self.db = Canapedb(self.config['VIDEOS_DB'],
                            self.config['tvshow']['subtitles'],
                            self.config['tvshow']['quality'])
+
+        self.qualitiesdb = Qualitiesdb(self.config['QUALITIES_DB'])
 
     def get_series(self):
         return list(self.db.get_series())
@@ -45,6 +49,9 @@ class CanapeInterface(object):
         serie = Serie(**seriejson)
         self.db.remove_serie(serie)
         return 1
+
+    def get_qualities(self):
+        pass
 
 
 class CanapeXMLRPCServer(threading.Thread):
