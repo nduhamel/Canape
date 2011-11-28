@@ -20,7 +20,6 @@
 import logging
 import datetime
 import time
-from operator import attrgetter
 
 from canape.video import Searcher as Video
 from canape.subtitle import Searcher as Subtitle
