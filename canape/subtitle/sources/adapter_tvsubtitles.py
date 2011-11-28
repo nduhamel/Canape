@@ -23,7 +23,7 @@ from zipfile import ZipFile
 import logging
 
 import tvsubtitles_api
-from tvsubtitles_api.tvsubtitles_exceptions import tvsubtitles_languagenotfound
+from tvsubtitles_api.tvsubtitles_exceptions import tvsubtitles_languagenotfound, tvsubtitles_episodenotfound
 
 from canape.subtitle.tvshow import TvShowSubtitle
 from canape.subtitle.subtitle import Subtitle
@@ -53,7 +53,7 @@ class TvSubtitles(TvShowSubtitle):
         try:
             subtitles = self.tvsubtitles[tvshow_name][episodeObj.snum][episodeObj.enum]['languages'][serieObj.subtitle]
             return [ self._translate(s) for s in subtitles]
-        except tvsubtitles_languagenotfound as  strerror:
+        except (tvsubtitles_languagenotfound,tvsubtitles_episodenotfound, KeyError) as  strerror:
             logger.info(strerror)
             return []
 

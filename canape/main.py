@@ -20,6 +20,7 @@
 import logging
 import datetime
 import time
+from operator import attrgetter
 
 from canape.video import Searcher as Video
 from canape.subtitle import Searcher as Subtitle
@@ -97,11 +98,11 @@ class Canape(object):
                     LOGGER.debug("Episode %s is downloading check that" % id_)
                     try:
                         isfinished = self.downloader.is_finished(id_)
-                        LOGGER.debug("Episode %s download finished" % id_)
                     except UnknownDownload:
                         LOGGER.error("Episode %s unknown from downloader guess it's downloaded" % id_ )
                         episode.set_downloaded()
                     if isfinished:
+                        LOGGER.debug("Episode %s download finished" % id_)
                         episode.set_downloaded()
 
                 elif not episode.is_downloaded():
@@ -113,8 +114,9 @@ class Canape(object):
 
                 if not episode.subtitle_downloaded():
                     subtitle = self.getEpisodeSubtitles(serie, episode, video)
-                    self.downloader.addSubtitle(subtitle)
-                    episode.set_subtitle_downloaded()
+                    if subtitle is not None:
+                        self.downloader.addSubtitle(subtitle)
+                        episode.set_subtitle_downloaded()
 
                 updated_episodes.append(episode)
 
@@ -129,7 +131,7 @@ class Canape(object):
 
         Get information by :py:class:`canape.information.Searcher` and test airdate.
         """
-        lastest_ep = serieObj.episodes[-1]
+        lastest_ep = sorted(serieObj.episodes,  key=attrgetter('snum','enum'))[-1]
         season_episodes= self.information.get_episodes(serieObj, lastest_ep.snum)
         for enum in season_episodes[lastest_ep.enum:]:
             airdate = self.information.get_airdate(serieObj, lastest_ep.snum, enum)
@@ -170,4 +172,7 @@ class Canape(object):
         :py:class:`canape.chooser.SubtitleChooser` to choose the best.
         """
         subtitles = self.subtitle.tvshow_search(serieObj, episodeObj)
-        return self.subtitlechooser.choose(subtitles, videoObj)
+        if len(subtitles):
+            return self.subtitlechooser.choose(subtitles, videoObj)
+        else:
+            return None
