@@ -32,24 +32,28 @@ LOCK = Lock()
 
 class Quality(object):
 
-    def __init__(self, label=None, size=None, extensions=[],
-                 keywords=[], extras=[],fromxml=None):
+    def __init__(self,
+                 label=None,
+                 size=None,
+                 extensions=[],
+                 keywords=[],
+                 extras=[],
+                 fromxml=None):
 
-        if label == None and fromxml == None:
-            raise ValueError()
-        if label is not None and size == None:
-            raise ValueError()
         if fromxml is not None:
-            self._populate_from_xml(fromxml)
+            self._from_xml(fromxml)
         else:
+            if label == None or size == None:
+                raise ValueError()
+
             self.label = label
             self.size = size
             self.extensions = extensions
             self.keywords = keywords
             self.extras = extras
 
-    def _populate_from_xml(self, fromxml):
-        for e in fromxml:
+    def _from_xml(self, xml):
+        for e in xml:
             if e.tag == 'label':
                 setattr(self, 'label', e.text.lower())
             elif e.tag == 'size':
@@ -209,16 +213,4 @@ class Qualitiesdb(object):
             while elem.getprevious() is not None:
                 del elem.getparent()[0]
         del context
-
-if __name__ == '__main__':
-    from canape.video.searcher import Searcher
-    searcher = Searcher()
-    qualities = Qualities('qualities.xml')
-
-    print "Test qualities"
-    print "Make a search: 'The Walking Dead S02E05' "
-    results = searcher.tvshow_search('The Walking Dead', 2, 5)
-    for r in results:
-        print "Name: %s sourcescore: %s  quality score: %s" % (r.name, r.sourcescore,
-            qualities.quality_bet(r.name,size=r.size))
 
