@@ -4,6 +4,8 @@
 ##where the runner script is in /usr/bin (or wherever)
 ##
 ##So, you don't need anything special - no fancy path tricks.
+import os
+import signal
 import logging
 from optparse import OptionParser
 
@@ -11,58 +13,68 @@ import daemon
 
 from canape.main import Canape
 from canape.xmlrpc import CanapeXMLRPCServer
+from canape.pidlockfile import RPIDLockFile, is_pidfile_stale, AlreadyLocked
+from canape.env import CanapeEnv
+from canape.config import CanapeConfig
 
 usage = "usage: %prog [options] arg"
 parser = OptionParser(usage,  version="%prog 1.0")
 
-parser.add_option("-D", "--daemon", action="store_true", dest="daemon",
-                  default=False, help="Start canape as a daemon")
+parser.add_option("-d","--daemon", type="choice", choices=('start','stop') )
+parser.add_option("--only-xmlrpc", action="store_true", dest="onlyxmlrpc")
 
-parser.add_option("--xmlrpc",
-                  action="store_true", dest="xmlrpc",
-                  help="Launch xmlrpc interface")
-
-parser.add_option("--only-xmlrpc",
-                  action="store_true", dest="onlyxmlrpc",
-                  help="Launch xmlrpc interface")
-
-parser.add_option("-l", "--log", dest='logfile',
-                  metavar="FILE", help="write logging output to FILE")
-
-parser.add_option("-v", "--verbose",
-                  action="store_true", dest="verbose",
-                  help="Log all info [default]")
-
-parser.add_option("-d", "--debug",
-                  action="store_true", dest="debug",
-                  help="Log all message")
 (options, args) = parser.parse_args()
 
-loglevel = logging.ERROR
-if options.verbose is True:
-    loglevel = logging.INFO
-if options.debug is True:
-    loglevel = logging.DEBUG
+env = CanapeEnv()
+pidfile = RPIDLockFile(env['CANAPE_DATA_DIR']+'/canape.pid')
+files_preserve=None
 
-if options.logfile is None:
-    logging.basicConfig(level = loglevel)
-    files_preserve=None
-else:
-    logger = logging.getLogger()
-    handler = logging.FileHandler(options.logfile)
-    handler.setLevel(loglevel)
-    logger.addHandler(handler)
-    logger.setLevel(loglevel)
-    files_preserve=[handler.stream]
+logging.basicConfig(level=logging.INFO)
 
-if options.onlyxmlrpc is True:
-    s = CanapeXMLRPCServer()
-    s.daemon = False
-    s.run()
-else:
-    canape = Canape()
-    if not options.daemon:
-        canape.check()
+def is_locked(pidfile):
+    if is_pidfile_stale(pidfile):
+        pidfile.break_lock()
+    return pidfile.is_locked()
+
+
+if options.daemon is not None:
+    if options.daemon == 'start':
+
+        if is_pidfile_stale(pidfile):
+            pidfile.break_lock()
+
+        if not pidfile.is_locked():
+            canape = Canape()
+            daemon_context = daemon.DaemonContext(files_preserve=files_preserve,
+                                                    pidfile=pidfile)
+            with daemon_context:
+                canape.daemon_run()
+        else:
+            print "PID file %s already locked" % pidfile.path
+
+    elif options.daemon == 'stop':
+
+        if not is_locked(pidfile):
+            print "Canape isn't started"
+        else:
+            pid = pidfile.read_pid()
+            try:
+                os.kill(pid, signal.SIGTERM)
+            except OSError, exc:
+                print "Failed to terminate %s: %s" % (pid, exc)
+
+elif options.onlyxmlrpc:
+    if is_locked(pidfile):
+        print "Canape already running, you can't launch the XML-RCP server"
     else:
-        with daemon.DaemonContext(files_preserve=files_preserve):
-            canape.daemon_run()
+        config = CanapeConfig()
+        server = CanapeXMLRPCServer(config['xmlrpc']['hostname'],
+                                    config['xmlrpc']['port'])
+        server.start()
+
+else:
+    if is_locked(pidfile):
+        print "Canape already running"
+    else:
+        canape = Canape()
+        canape.check()
