@@ -5,6 +5,7 @@
 ##
 ##So, you don't need anything special - no fancy path tricks.
 import os
+import sys
 import signal
 import logging
 from optparse import OptionParser
@@ -50,22 +51,22 @@ if options.daemon is not None:
             with daemon_context:
                 canape.daemon_run()
         else:
-            print "PID file %s already locked" % pidfile.path
+            sys.exit("Canape already started")
 
     elif options.daemon == 'stop':
 
         if not is_locked(pidfile):
-            print "Canape isn't started"
+            sys.exit("Canape isn't started")
         else:
             pid = pidfile.read_pid()
             try:
                 os.kill(pid, signal.SIGTERM)
             except OSError, exc:
-                print "Failed to terminate %s: %s" % (pid, exc)
+                sys.exit("Failed to terminate %s: %s" % (pid, exc))
 
 elif options.onlyxmlrpc:
     if is_locked(pidfile):
-        print "Canape already running, you can't launch the XML-RCP server"
+        sys.exit("Canape already started, you can't start the XML-RCP server")
     else:
         config = CanapeConfig()
         server = CanapeXMLRPCServer(config['xmlrpc']['hostname'],
@@ -74,7 +75,7 @@ elif options.onlyxmlrpc:
 
 else:
     if is_locked(pidfile):
-        print "Canape already running"
+        sys.exit("Canape already started")
     else:
         canape = Canape()
         canape.check()
