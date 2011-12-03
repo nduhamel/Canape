@@ -33,7 +33,10 @@ class Searcher:
         path = os.path.dirname(__file__) + '/sources'
         self.sources_package = self._load_sources(path,used_sources)
         self.tvshow_sources = [s() for s in TvShowSearcher.plugins]
-
+        if len(self.tvshow_sources):
+            LOGGER.info("Available TV Show sources: %s" % "; ".join([s.name for s in self.tvshow_sources]) )
+        else:
+            LOGGER.error('No available TV Show sources')
 
     def tvshow_search(self, serieObj, episodeObj):
         """ """

@@ -36,6 +36,11 @@ class Searcher(object):
         self.sources_package = self._load_sources(path, used_sources)
         self.tvshow_sources = [s() for s in TvShowSubtitle.plugins]
 
+        if len(self.tvshow_sources):
+            LOGGER.info("Available TV Show subtitle sources: %s" % "; ".join([s.name for s in self.tvshow_sources]) )
+        else:
+            LOGGER.error('No available TV Show subtitle sources')
+
     def tvshow_search(self, serieObj, episodeObj):
         """ Return a list of found subtitle dicts """
         results = []

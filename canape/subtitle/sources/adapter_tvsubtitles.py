@@ -41,6 +41,8 @@ def getter(subtitleObj):
 
 class TvSubtitles(TvShowSubtitle):
 
+    name = "TVSubtitles.net"
+
     def __init__(self):
         self.tvsubtitles = tvsubtitles_api.TvSubtitles()
 
