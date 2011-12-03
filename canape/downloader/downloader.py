@@ -23,7 +23,7 @@ import logging
 
 from canape.exceptions import CanapeException
 from canape.downloader.torrent import TorrentDownloader, compute_hash
-from canape.downloader.downloadqueue import DownloadQueue
+from canape.downloader.downloadqueue import DownloadQueue, AlreadyExist
 from canape.downloader.exceptions import UnknownDownload, AlreadyDownloading
 
 LOGGER = logging.getLogger(__name__)
@@ -41,7 +41,7 @@ class Downloader(object):
         self.torrent_downloaders=[]
         self._load_torrent_downloaders()
         if len(self.torrent_downloaders):
-            LOGGER.debug("Available torrent downloaders: %s" % self.torrent_downloaders)
+            LOGGER.info("Available torrent downloaders: %s" % "; ".join([t.name for t in self.torrent_downloaders]) )
         else:
             LOGGER.error('No available torrent downloaders')
 
@@ -90,12 +90,17 @@ class Downloader(object):
                 self.torrent_downloaders[0].addTorrent(videoObj)
             except AlreadyDownloading:
                 LOGGER.error("Download %s already downloading" % videoObj)
-                return
             videoObj.extra['downloader_id'] = compute_hash(videoObj)
-            self.queue.append(videoObj, self.queue.STARTED)
+            try:
+                self.queue.append(videoObj, self.queue.STARTED)
+            except AlreadyExist:
+                LOGGER.error("Download %s already in download queue" % videoObj)
         else:
             LOGGER.warning('No available downloader, put in queue')
-            self.queue.append(videoObj)
+            try:
+                self.queue.append(videoObj)
+            except AlreadyExist:
+                LOGGER.error("Download %s already in download queue" % videoObj)
 
     def addSubtitle(self, subtitleObj):
         destname = self.config['download_dir']+'/'+subtitleObj.name+'.str'
