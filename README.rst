@@ -11,17 +11,26 @@ Canape is an automated TV show downloader.
 Install
 -------
 
+I highly recommend use of `virtualenv and virtualenvwrapper <http://www.doughellmann.com/docs/virtualenvwrapper/>`_.
+
 To install Canape just do::
 
     git clone git://github.com/nduhamel/Canape.git
-    easy_install Canape
+    cd Canape
+    pip install -r requirements.txt
+    pip install -e ./
 
 Launch
 ------
 
 Canape run as a daemon::
 
-    Canape/: python runner -D
+    Canape/: python runner --daemon start
+    Canape/: python runner --daemon stop
+
+If you want to start only the XML-RPC server::
+
+    Canape/: python runner --only-xmlrpc
 
 Using
 -----

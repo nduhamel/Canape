@@ -35,9 +35,8 @@ for dirpath, dirnames, filenames in os.walk(canape_dir):
     elif filenames:
         data_files.append([dirpath, [os.path.join(dirpath, f) for f in filenames if not f.endswith('.pyc')]])
 ## End find packages helper from django
-print data_files
 setup(name='canape',
-      version='0.0.2a',
+      version='0.1a',
       description='a tvshow downloader',
       url='https://github.com/nduhamel/canape',
       packages = packages,
@@ -48,12 +47,4 @@ setup(name='canape',
           'Programming Language :: Python',
           'Operating System :: OS Independent'
       ],
-      install_requires=["lxml",
-                "python-tvrage",
-                "configobj",
-                "transmissionrpc",
-                "bencode",
-                "python-daemon",
-                "pytpb",
-                "tvsubtitles_api"]
      )

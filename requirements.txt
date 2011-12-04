@@ -1,0 +1,8 @@
+lxml
+python-tvrage
+configobj
+transmissionrpc
+bencode
+python-daemon
+pytpb
+tvsubtitles_api
