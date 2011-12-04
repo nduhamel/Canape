@@ -67,6 +67,8 @@ class Downloader(object):
 
     def is_finished(self, videoid):
         """ check if a video is downloading """
+        if len(self.torrent_downloaders) == 0:
+            return False
         for download in self.queue:
             if download.id_ == videoid:
                 if download.extra['state'] == self.queue.WAITING:
