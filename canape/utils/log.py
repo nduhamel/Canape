@@ -22,7 +22,7 @@ import warnings
 
 import canape.env
 
-__all__ = ['dictConfig', 'NullHandler', 'FileHandler']
+__all__ = ['dictConfig', 'NullHandler', 'RotatingFileHandler']
 
 # Make sure that dictConfig is available
 # This was added in Python 2.7/3.2
@@ -42,10 +42,12 @@ except ImportError:
 
 # Wrap FileHandler to keep track of opened files
 # Usefull for daemon mode
-class FileHandler(logging.FileHandler):
+class RotatingFileHandler(logging.handlers.RotatingFileHandler):
     def __init__(self, **kwargs):
         canape.env.OPEN_FILES.append(kwargs.get('filename'))
-        logging.FileHandler.__init__(self,**kwargs)
+        kwargs.setdefault('maxBytes',1048576)
+        kwargs.setdefault('backupCount',5)
+        logging.handlers.RotatingFileHandler.__init__(self,**kwargs)
 
 # Ensure the creation of the canape logger
 # with a null handler. This ensures we don't get any

@@ -33,8 +33,8 @@ DEFAULT = {
     'handlers': {
         'main': {
             'level': 'INFO',
-            'class': 'canape.utils.log.FileHandler',
-            'filename': 'canape.log'
+            'class': 'canape.utils.log.RotatingFileHandler',
+            'filename': conf.env['CANAPE_DATA_DIR']+'/canape.log'
         }
     },
     'loggers': {
@@ -60,8 +60,8 @@ DEBUG = {
     'handlers': {
         'main': {
             'level': 'DEBUG',
-            'class': 'canape.utils.log.FileHandler',
-            'filename': 'canape.log'
+            'class': 'canape.utils.log.RotatingFileHandler',
+            'filename': conf.env['CANAPE_DATA_DIR']+'/canape.log'
         }
     },
     'loggers': {
