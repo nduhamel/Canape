@@ -31,6 +31,7 @@ from canape.downloader import Downloader
 from canape.downloader.exceptions import UnknownDownload
 from canape.object import Episode
 from canape.xmlrpc import CanapeXMLRPCServer
+import canape.logger
 
 LOGGER = logging.getLogger(__name__)
 

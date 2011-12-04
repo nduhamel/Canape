@@ -22,7 +22,7 @@ import hashlib
 
 import bencode
 
-from canape.utils import PluginMount
+from canape.utils.plugins import PluginMount
 
 class TorrentDownloader:
     """ Base object for torrent downloader """

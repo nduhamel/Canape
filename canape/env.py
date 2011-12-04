@@ -20,6 +20,8 @@
 import os
 import shutil
 
+OPEN_FILES = []
+
 def package_path():
     """Borrowed from wxglade.py"""
     root = __file__

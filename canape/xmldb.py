@@ -25,7 +25,7 @@ import logging
 
 from lxml import etree
 
-from canape.utils import synchronized
+from canape.utils.thread import synchronized
 from canape.object import Serie, Episode
 
 LOGGER = logging.getLogger(__name__)

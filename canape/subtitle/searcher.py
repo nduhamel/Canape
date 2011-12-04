@@ -45,8 +45,14 @@ class Searcher(object):
         """ Return a list of found subtitle dicts """
         results = []
         for source in self.tvshow_sources:
+            LOGGER.info("Search for {0.name} S{1.snum:0>2}E{1.enum:0>2} in quality: {0.quality} in language {0.subtitle} with {2.name}".format(
+                        serieObj, episodeObj, source) )
             results.extend(source.search(serieObj, episodeObj))
-        return sorted(results, key=lambda s: s.sourcescore, reverse=True)
+        results = sorted(results, key=lambda s: s.sourcescore, reverse=True)
+        LOGGER.debug("Results:")
+        for r in results:
+            LOGGER.debug(repr(r))
+        return results
 
     def _load_sources(self, path, used_sources=None):
         loaded = []

@@ -1,5 +1,5 @@
 #encoding:utf-8
-#       subtitle/tvshow.py
+#       utils/thread.py
 #
 #       Copyright 2011 nicolas <nicolas@jombi.fr>
 #
@@ -17,17 +17,16 @@
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
-from canape.utils.plugins import PluginMount
 
-class TvShowSubtitle:
-    """ Base object for tvshow subtitle search web site API
+def synchronized(lock):
+    """ Synchronization decorator. """
 
-    A TvShowSubtitle object must have a search(tvshow, snum, enum, language)
-    function that return a list of subtitle objects
-    """
-    __metaclass__ = PluginMount
-
-    name = "Unknown"
-
-    def search(self, tvshow, snum, enum, language):
-        raise NotImplementedError()
+    def wrap(f):
+        def new_function(*args, **kw):
+            lock.acquire()
+            try:
+                return f(*args, **kw)
+            finally:
+                lock.release()
+        return new_function
+    return wrap

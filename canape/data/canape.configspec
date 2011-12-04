@@ -1,3 +1,6 @@
+[main]
+logmode = string(default=default)
+
 [xmlrpc]
 start = boolean(default=True)
 hostname = string(default=localhost)

@@ -1,5 +1,5 @@
 #encoding:utf-8
-#       subtitle/tvshow.py
+#       utils/plugins.py
 #
 #       Copyright 2011 nicolas <nicolas@jombi.fr>
 #
@@ -17,17 +17,17 @@
 #       along with this program; if not, write to the Free Software
 #       Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
 #       MA 02110-1301, USA.
-from canape.utils.plugins import PluginMount
 
-class TvShowSubtitle:
-    """ Base object for tvshow subtitle search web site API
-
-    A TvShowSubtitle object must have a search(tvshow, snum, enum, language)
-    function that return a list of subtitle objects
-    """
-    __metaclass__ = PluginMount
-
-    name = "Unknown"
-
-    def search(self, tvshow, snum, enum, language):
-        raise NotImplementedError()
+class PluginMount(type):
+    def __init__(cls, name, bases, attrs):
+        if not hasattr(cls, 'plugins'):
+            # This branch only executes when processing the mount point itself.
+            # So, since this is a new plugin type, not an implementation, this
+            # class shouldn't be registered as a plugin. Instead, it sets up a
+            # list where plugins can be registered later.
+            cls.plugins = []
+        else:
+            # This must be a plugin implementation, which should be registered.
+            # Simply appending it to the list is all that's needed to keep
+            # track of it later.
+            cls.plugins.append(cls)

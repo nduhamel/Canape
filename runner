@@ -30,8 +30,6 @@ env = CanapeEnv()
 pidfile = RPIDLockFile(env['CANAPE_DATA_DIR']+'/canape.pid')
 files_preserve=None
 
-logging.basicConfig(level=logging.INFO)
-
 def is_locked(pidfile):
     if is_pidfile_stale(pidfile):
         pidfile.break_lock()
