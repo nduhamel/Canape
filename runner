@@ -69,6 +69,7 @@ elif options.onlyxmlrpc:
         config = CanapeConfig()
         server = CanapeXMLRPCServer(config['xmlrpc']['hostname'],
                                     config['xmlrpc']['port'])
+        server.daemon = False
         server.start()
 
 else:
