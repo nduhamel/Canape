@@ -29,26 +29,27 @@ class TvRage(object):
 
     def get_serie_id(self, seriename):
         if seriename not in self._shows.keys():
-            self._get_serie(seriename)
+            self.get_serie(seriename)
         return self._shows[seriename].showid
 
     def get_seasons(self, seriename):
         """ Return list of seasons """
         if seriename not in self._shows.keys():
-            self._get_serie(seriename)
+            self.get_serie(seriename)
         return range(1, self._shows[seriename].seasons +1)
 
     def get_episodes(self, seriename, snum):
         """ Return list of episodes """
         if seriename not in self._shows.keys():
-            self._get_serie(seriename)
+            self.get_serie(seriename)
         return self._shows[seriename].season(snum).keys()
 
     def get_airdate(self, seriename, snum, enum):
         """ Return airdate (datetime) """
         if seriename not in self._shows.keys():
-            self._get_serie(seriename)
+            self.get_serie(seriename)
         return datetime.datetime.combine(self._shows[seriename].season(snum)[enum].airdate, datetime.time() )
 
-    def _get_serie(self, seriename):
+    def get_serie(self, seriename):
         self._shows[seriename] = tvrage.api.Show(seriename)
+        return self._shows[seriename]

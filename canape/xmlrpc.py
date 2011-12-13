@@ -19,11 +19,13 @@
 #       MA 02110-1301, USA.
 from SimpleXMLRPCServer import SimpleXMLRPCServer
 import threading
+import datetime
 
 from canape.config import CanapeConfig
 from canape.xmldb import Canapedb
 from canape.object import Serie
 from canape.quality import Qualitiesdb
+from canape.information import Searcher as Information
 
 
 class CanapeInterface(object):
@@ -36,6 +38,15 @@ class CanapeInterface(object):
                            self.config['tvshow']['quality'])
 
         self.qualitiesdb = Qualitiesdb(self.config['QUALITIES_DB'])
+        self.information = Information()
+
+    def search_serie(self, name):
+        show = self.information.get_serie(name)
+        started = show.started
+        ended = show.ended or datetime.date.today().year
+        datesstr = "%s-%s" % (started, ended)
+        serie = Serie(name=show.name, id_=show.showid, datesstr=datesstr )
+        return serie
 
     def get_series(self):
         return list(self.db.get_series())

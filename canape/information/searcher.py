@@ -33,6 +33,10 @@ class Searcher:
     def __init__(self):
         self.source = TvRage()
 
+    def get_serie(self, name):
+        """ get internal id of tv show"""
+        return self.source.get_serie(name)
+
     def get_seasons(self, videoObj):
         """ Return list of seasons """
         return self.source.get_seasons(videoObj.name)
